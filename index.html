@@ -239,14 +239,108 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
 .step-content code { font-family: 'DM Mono', monospace; background: var(--surface2); padding: 1px 5px; border-radius: 4px; font-size: 11px; color: var(--text); }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .grid-2 { grid-template-columns: 1fr; }
   .grid-3 { grid-template-columns: 1fr; }
-  .sidebar { width: 60px; }
-  .sidebar-logo p, .nav-section-label, .nav-item span, .sidebar-month span { display: none; }
-  .nav-item { justify-content: center; padding: 10px; }
-  .sidebar-month { justify-content: center; }
+  .sidebar { display: none; }
+  .main-content { padding-bottom: 70px; }
+  .page { padding: 16px 14px; }
+  .page-title { font-size: 17px; }
+  .metric-value { font-size: 17px; }
+  .data-table { font-size: 12px; }
+  .data-table th, .data-table td { padding: 7px 8px; }
+  .modal { width: 95vw; padding: 18px; }
+  .form-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* Bottom nav — mobile only */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 50;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.bottom-nav-inner {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  min-width: max-content;
+  padding: 0 4px;
+}
+.bn-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  min-width: 56px;
+  color: var(--text3);
+  transition: color 0.15s;
+}
+.bn-item.active { color: var(--blue); }
+.bn-item.active .bn-icon { background: var(--blue-bg); }
+.bn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.15s;
+}
+.bn-label { font-size: 10px; font-weight: 500; white-space: nowrap; }
+.bn-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  min-width: 56px;
+}
+.bn-add-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--text);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 300;
+}
+.bn-add-label { font-size: 10px; font-weight: 500; color: var(--text2); }
+
+/* Mobile month bar */
+.mobile-month-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 0;
+  margin-bottom: -8px;
+}
+.mobile-month-bar span { font-size: 13px; font-weight: 600; }
+
+@media (max-width: 768px) {
+  .bottom-nav { display: block; }
+  .mobile-month-bar { display: flex; }
 }
 </style>
 </head>
@@ -695,6 +789,63 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
   </div><!-- end main-content -->
 </div><!-- end app -->
 </div><!-- end mainApp -->
+
+<!-- Bottom Navigation (mobile) -->
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <button class="bn-item active" onclick="showPageMobile('dashboard', this)" id="bn-dashboard">
+      <div class="bn-icon">&#9632;</div>
+      <span class="bn-label">Dashboard</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('transactions', this)" id="bn-transactions">
+      <div class="bn-icon">&#8644;</div>
+      <span class="bn-label">Transactions</span>
+    </button>
+    <button class="bn-add" onclick="openModal('addTransaction')">
+      <div class="bn-add-circle">+</div>
+      <span class="bn-add-label">Add</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('accounts', this)" id="bn-accounts">
+      <div class="bn-icon">&#9679;</div>
+      <span class="bn-label">Accounts</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('savings', this)" id="bn-savings">
+      <div class="bn-icon">&#9670;</div>
+      <span class="bn-label">Savings</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('loans', this)" id="bn-loans">
+      <div class="bn-icon">&#8595;</div>
+      <span class="bn-label">Loans</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('yearly', this)" id="bn-yearly">
+      <div class="bn-icon">&#128200;</div>
+      <span class="bn-label">Yearly</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('networth', this)" id="bn-networth">
+      <div class="bn-icon">&#9670;</div>
+      <span class="bn-label">Net worth</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('budget', this)" id="bn-budget">
+      <div class="bn-icon">&#9632;</div>
+      <span class="bn-label">Budget</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('reports', this)" id="bn-reports">
+      <div class="bn-icon">&#128196;</div>
+      <span class="bn-label">Reports</span>
+    </button>
+    <button class="bn-item" onclick="showPageMobile('settings', this)" id="bn-settings">
+      <div class="bn-icon">&#9881;</div>
+      <span class="bn-label">Settings</span>
+    </button>
+  </div>
+</div>
+
+<!-- Mobile month bar -->
+<div class="mobile-month-bar" id="mobileMonthBar">
+  <button class="month-nav" onclick="changeMonth(-1)" style="font-size:18px;">&#8592;</button>
+  <span id="mobileMonthLabel">Apr 2026</span>
+  <button class="month-nav" onclick="changeMonth(1)" style="font-size:18px;">&#8594;</button>
+</div>
 
 <!-- MODALS -->
 
@@ -1167,9 +1318,18 @@ function changeMonth(dir) {
 
 function updateMonthLabel() {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('monthLabel').textContent = months[appData.currentMonth] + ' ' + appData.currentYear;
   const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('monthLabel').textContent = months[appData.currentMonth] + ' ' + appData.currentYear;
+  const ml = document.getElementById('mobileMonthLabel');
+  if (ml) ml.textContent = months[appData.currentMonth] + ' ' + appData.currentYear;
   if (document.getElementById('dashSubtitle')) document.getElementById('dashSubtitle').textContent = fullMonths[appData.currentMonth] + ' ' + appData.currentYear + ' overview';
+}
+
+function showPageMobile(name, btn) {
+  showPage(name, null);
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0, 0);
 }
 
 // =============================================
