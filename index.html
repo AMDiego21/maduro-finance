@@ -621,14 +621,7 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
           </div>
           <button class="btn btn-primary" onclick="saveSheetSettings()">Save & connect</button>
         </div>
-        <div class="card">
-          <div class="section-header"><div class="section-title">Savings opening balance</div></div>
-          <div class="form-row">
-            <label>Current savings balance (AWG)</label>
-            <input type="number" id="savingsOpeningInput" placeholder="0.00">
-          </div>
-          <button class="btn btn-primary" onclick="setSavingsOpening()">Set balance</button>
-        </div>
+
       </div>
       <div class="grid-2">
         <div class="card">
@@ -1647,7 +1640,6 @@ function renderSettings() {
   document.getElementById('sheetsStatus').textContent = appData.isDemo ? 'Running in demo mode. Connect Google Sheets to save data permanently.' : 'Connected to Google Sheets.';
   document.getElementById('sheetIdInput').value = appData.settings.sheetId || '';
   document.getElementById('clientIdInput').value = appData.settings.clientId || '';
-  document.getElementById('savingsOpeningInput').value = appData.savingsOpening || '';
   document.getElementById('diegoBizVal').value = appData.assets.diegoBiz || '';
   document.getElementById('stephanyBizVal1').value = appData.assets.stephanyBiz1 || '';
   document.getElementById('stephanyBizVal2').value = appData.assets.stephanyBiz2 || '';
@@ -1664,10 +1656,7 @@ function saveSheetSettings() {
   }
 }
 
-function setSavingsOpening() {
-  const val = parseFloat(document.getElementById('savingsOpeningInput').value);
-  if (!isNaN(val)) { appData.savingsOpening = val; showToast('Opening balance set to ' + fmt(val)); renderDashboard(); }
-}
+
 
 function saveAssetValues() {
   appData.assets.diegoBiz = parseFloat(document.getElementById('diegoBizVal').value)||0;
