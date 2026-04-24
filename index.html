@@ -75,7 +75,7 @@ input, select, textarea { font-family: 'DM Sans', sans-serif; }
 .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); margin-bottom: 14px; }
 
 /* Metrics grid */
-.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
 .metric-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 16px 18px; box-shadow: var(--shadow); }
 .metric-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
 .metric-value { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; font-family: 'DM Mono', monospace; }
@@ -293,6 +293,7 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
     <div class="nav-section">
       <div class="nav-section-label">Money</div>
       <button class="nav-item" onclick="showPage('income', this)"><span class="nav-icon">&#43;</span><span>Income</span></button>
+      <button class="nav-item" onclick="showPage('accounts', this)"><span class="nav-icon">&#9632;</span><span>Accounts</span></button>
       <button class="nav-item" onclick="showPage('savings', this)"><span class="nav-icon">&#9679;</span><span>Savings & goals</span></button>
       <button class="nav-item" onclick="showPage('loans', this)"><span class="nav-icon">&#8595;</span><span>Loans</span></button>
       <button class="nav-item" onclick="showPage('networth', this)"><span class="nav-icon">&#9670;</span><span>Net worth</span></button>
@@ -393,6 +394,7 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
               <th>Description</th>
               <th>Category</th>
               <th>Person</th>
+              <th>Account</th>
               <th>Amount</th>
               <th>Flags</th>
               <th>Receipt</th>
@@ -458,6 +460,34 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
           <thead><tr><th>Date</th><th>Person</th><th>Source</th><th>Amount</th><th>Notes</th></tr></thead>
           <tbody id="incomeTableBody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div id="page-accounts" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Accounts</div>
+          <div class="page-subtitle">All 6 accounts — balances update as transactions are logged</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="openModal('transferFunds')">&#8644; Transfer</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('editAccounts')">Edit balances</button>
+        </div>
+      </div>
+      <div class="grid-3" id="accountsGrid"></div>
+      <div class="card">
+        <div class="card-title">Account transaction history</div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterAccountTx('all', this)">All accounts</button>
+          <button class="filter-btn" onclick="filterAccountTx('diego_current', this)">Diego current</button>
+          <button class="filter-btn" onclick="filterAccountTx('diego_savings', this)">Diego savings</button>
+          <button class="filter-btn" onclick="filterAccountTx('stephany_current', this)">Stephany current</button>
+          <button class="filter-btn" onclick="filterAccountTx('stephany_savings', this)">Stephany savings</button>
+          <button class="filter-btn" onclick="filterAccountTx('joint_current', this)">Joint current</button>
+          <button class="filter-btn" onclick="filterAccountTx('joint_savings', this)">Joint savings</button>
+        </div>
+        <div id="accountTxList"></div>
       </div>
     </div>
 
@@ -712,6 +742,17 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
         </select>
       </div>
     </div>
+    <div class="form-row">
+      <label>Account used</label>
+      <select id="tx-account">
+        <option value="joint_current">Joint current account</option>
+        <option value="diego_current">Diego personal current</option>
+        <option value="stephany_current">Stephany personal current</option>
+        <option value="joint_savings">Joint savings account</option>
+        <option value="diego_savings">Diego personal savings</option>
+        <option value="stephany_savings">Stephany personal savings</option>
+      </select>
+    </div>
     <div class="form-grid-2">
       <div class="form-row">
         <label>Amount</label>
@@ -890,6 +931,64 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
 
 <div class="toast" id="toast"></div>
 
+<!-- Transfer Funds Modal -->
+<div class="modal-overlay" id="modal-transferFunds">
+  <div class="modal">
+    <div class="modal-title">Transfer between accounts</div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>From account</label>
+        <select id="transfer-from">
+          <option value="diego_current">Diego personal current</option>
+          <option value="diego_savings">Diego personal savings</option>
+          <option value="stephany_current">Stephany personal current</option>
+          <option value="stephany_savings">Stephany personal savings</option>
+          <option value="joint_current">Joint current</option>
+          <option value="joint_savings">Joint savings</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>To account</label>
+        <select id="transfer-to">
+          <option value="joint_savings">Joint savings</option>
+          <option value="diego_savings">Diego personal savings</option>
+          <option value="stephany_savings">Stephany personal savings</option>
+          <option value="joint_current">Joint current</option>
+          <option value="diego_current">Diego personal current</option>
+          <option value="stephany_current">Stephany personal current</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Amount (AWG)</label><input type="number" id="transfer-amount" placeholder="200.00"></div>
+      <div class="form-row"><label>Date</label><input type="date" id="transfer-date"></div>
+    </div>
+    <div class="form-row"><label>Note</label><input type="text" id="transfer-note" placeholder="e.g. Monthly savings transfer"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('transferFunds')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTransfer()">Save transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Account Balances Modal -->
+<div class="modal-overlay" id="modal-editAccounts">
+  <div class="modal">
+    <div class="modal-title">Set opening account balances</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:16px;">Enter the current balance for each account. The app will track from here as you log transactions.</p>
+    <div class="form-row"><label>Diego — personal current (AWG)</label><input type="number" id="acc-diego-current" placeholder="0.00"></div>
+    <div class="form-row"><label>Diego — personal savings (AWG)</label><input type="number" id="acc-diego-savings" placeholder="0.00"></div>
+    <div class="form-row"><label>Stephany — personal current (AWG)</label><input type="number" id="acc-stephany-current" placeholder="0.00"></div>
+    <div class="form-row"><label>Stephany — personal savings (AWG)</label><input type="number" id="acc-stephany-savings" placeholder="0.00"></div>
+    <div class="form-row"><label>Joint — current (AWG)</label><input type="number" id="acc-joint-current" placeholder="0.00"></div>
+    <div class="form-row"><label>Joint — savings (AWG)</label><input type="number" id="acc-joint-savings" placeholder="0.00"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('editAccounts')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAccountBalances()">Save balances</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // =============================================
 // DATA STORE
@@ -920,6 +1019,9 @@ let appData = {
   currentMonth: new Date().getMonth(),
   currentYear: new Date().getFullYear(),
   txFilter: 'all',
+  accountFilter: 'all',
+  accountBalances: { diego_current:0, diego_savings:0, stephany_current:0, stephany_savings:0, joint_current:0, joint_savings:0 },
+  transfers: [],
   catFilter: '',
   googleToken: null,
   isDemo: false
@@ -1050,6 +1152,7 @@ function renderPage(name) {
   else if (name === 'networth') renderNetWorth();
   else if (name === 'budget') renderBudgetPage();
   else if (name === 'income') renderIncomePage();
+  else if (name === 'accounts') renderAccountsPage();
   else if (name === 'settings') renderSettings();
 }
 
@@ -1106,11 +1209,15 @@ function renderDashboard() {
   const surplus = income - expenses - savingsDep;
   const savingsRate = income > 0 ? ((savingsDep / income) * 100).toFixed(1) : 0;
 
+  const totalCash = Object.keys(ACCOUNT_NAMES).filter(k=>k.includes('current')).reduce((a,k)=>a+calcAccountBalance(k),0);
+  const totalSavingsAll = Object.keys(ACCOUNT_NAMES).filter(k=>k.includes('savings')).reduce((a,k)=>a+calcAccountBalance(k),0);
   document.getElementById('metricsGrid').innerHTML = `
     <div class="metric-card"><div class="metric-label">Total income</div><div class="metric-value blue">${fmt(income)}</div><div class="metric-sub">Diego + Stephany</div></div>
     <div class="metric-card"><div class="metric-label">Total expenses</div><div class="metric-value red">${fmt(expenses)}</div><div class="metric-sub">${txs.filter(t=>t.type==='expense'&&!t.bizPaid).length} transactions</div></div>
     <div class="metric-card"><div class="metric-label">Monthly surplus</div><div class="metric-value ${surplus >= 0 ? 'green':'red'}">${fmt(surplus)}</div><div class="metric-sub">Savings rate: ${savingsRate}%</div></div>
     <div class="metric-card"><div class="metric-label">Business covered</div><div class="metric-value amber">${fmt(bizPaid)}</div><div class="metric-sub">Elec + Water + Net + Phone</div></div>
+    <div class="metric-card"><div class="metric-label">Total cash (3 accounts)</div><div class="metric-value blue">${fmt(totalCash)}</div><div class="metric-sub">All current accounts</div></div>
+    <div class="metric-card"><div class="metric-label">Total savings (3 accounts)</div><div class="metric-value green">${fmt(totalSavingsAll)}</div><div class="metric-sub">All savings accounts</div></div>
   `;
 
   // Recent transactions
@@ -1244,6 +1351,7 @@ function renderTransactions() {
       <td>${t.desc}${t.notes ? `<br><span style="font-size:11px;color:var(--text3);">${t.notes}</span>` : ''}</td>
       <td>${t.cat}</td>
       <td>${t.person==='diego'?`<span class="badge badge-diego">Diego</span>`:t.person==='stephany'?`<span class="badge badge-stephany">Stephany</span>`:`<span class="badge" style="background:var(--surface2);color:var(--text2);">Joint</span>`}</td>
+      <td style="font-size:11px;color:var(--text3);">${ACCOUNT_NAMES[t.account]||t.account||'—'}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:600;color:${isIncome?'var(--green)':'var(--red)'};">${isIncome?'+':'-'}${fmt(t.amountAWG)}</td>
       <td>${t.bizPaid?`<span class="badge badge-biz">Business</span>`:''}${t.reimb&&!t.reimbDone?`<span class="badge badge-reimb">Reimb.</span>`:''}${t.recurring?`<span class="badge" style="background:var(--teal-bg);color:var(--teal);">Recurring</span>`:''}</td>
       <td>${t.receipt?`<a href="${t.receipt}" target="_blank" style="color:var(--blue);font-size:12px;">&#128247; View</a>`:'-'}</td>
@@ -1599,6 +1707,7 @@ function saveTransaction() {
     reimb,
     reimbFrom: reimb ? document.getElementById('tx-reimbfrom').value : '',
     reimbDone: false,
+    account: account,
     recurring: document.getElementById('tx-recurring').checked,
     notes: document.getElementById('tx-notes').value,
     receipt: ''
@@ -1783,8 +1892,8 @@ function generateTaxReport() {
 
 function exportCSV() {
   const txs = getMonthTx(appData.currentMonth, appData.currentYear);
-  const rows = [['Date','Description','Category','Type','Person','Amount AWG','Currency','Business Paid','Reimb Pending','Notes']];
-  txs.forEach(t => rows.push([t.date,t.desc,t.cat,t.type,t.person,t.amountAWG,t.currency,t.bizPaid?'Yes':'No',t.reimb&&!t.reimbDone?'Yes':'No',t.notes]));
+  const rows = [['Date','Description','Category','Type','Person','Account','Amount AWG','Currency','Business Paid','Reimb Pending','Notes']];
+  txs.forEach(t => rows.push([t.date,t.desc,t.cat,t.type,t.person,ACCOUNT_NAMES[t.account]||t.account||'',t.amountAWG,t.currency,t.bizPaid?'Yes':'No',t.reimb&&!t.reimbDone?'Yes':'No',t.notes]));
   const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const a = document.createElement('a');
@@ -1806,7 +1915,7 @@ const SHEET_TABS = {
   SETTINGS: 'Settings'
 };
 
-const TX_HEADERS = ['ID','Date','Description','Category','Type','Person','Amount','Currency','AmountAWG','BizPaid','BizName','Reimb','ReimbFrom','ReimbDone','Recurring','Notes','Receipt'];
+const TX_HEADERS = ['ID','Date','Description','Category','Type','Person','Account','Amount','Currency','AmountAWG','BizPaid','BizName','Reimb','ReimbFrom','ReimbDone','Recurring','Notes','Receipt'];
 const LOAN_HEADERS = ['ID','Name','Person','Lender','Balance','Payment','Rate','Status','Notes'];
 const GOAL_HEADERS = ['ID','Name','Target','Current','Date','Color'];
 const SAVINGS_HEADERS = ['ID','Date','Type','Amount','Note','Balance'];
@@ -1857,7 +1966,7 @@ async function syncToSheets() {
 
   const txRows = appData.transactions.map(t => [
     t.id, t.date, t.desc, t.cat, t.type, t.person,
-    t.amount, t.currency, t.amountAWG,
+    t.account||'', t.amount, t.currency, t.amountAWG,
     t.bizPaid?'TRUE':'FALSE', t.bizName||'',
     t.reimb?'TRUE':'FALSE', t.reimbFrom||'',
     t.reimbDone?'TRUE':'FALSE', t.recurring?'TRUE':'FALSE',
@@ -1882,7 +1991,9 @@ async function syncToSheets() {
     ['stephanyBiz1', appData.assets.stephanyBiz1],
     ['stephanyBiz2', appData.assets.stephanyBiz2],
     ['other', appData.assets.other],
-    ['budgetLimits', JSON.stringify(appData.budgetLimits)]
+    ['budgetLimits', JSON.stringify(appData.budgetLimits)],
+    ['accountBalances', JSON.stringify(appData.accountBalances||{})],
+    ['transfers', JSON.stringify(appData.transfers||[])]
   ];
 
   const clearRanges = Object.values(SHEET_TABS).map(t => `${t}!A2:Z10000`);
@@ -1919,9 +2030,9 @@ async function loadFromSheets() {
   if (txRows.length) {
     appData.transactions = txRows.filter(r=>r[0]).map(r => ({
       id:parseInt(r[0])||Date.now(), date:r[1]||'', desc:r[2]||'', cat:r[3]||'', type:r[4]||'expense',
-      person:r[5]||'joint', amount:parseFloat(r[6])||0, currency:r[7]||'AWG', amountAWG:parseFloat(r[8])||0,
-      bizPaid:r[9]==='TRUE', bizName:r[10]||'', reimb:r[11]==='TRUE', reimbFrom:r[12]||'',
-      reimbDone:r[13]==='TRUE', recurring:r[14]==='TRUE', notes:r[15]||'', receipt:r[16]||''
+      person:r[5]||'joint', account:r[6]||'joint_current', amount:parseFloat(r[7])||0, currency:r[8]||'AWG', amountAWG:parseFloat(r[9])||0,
+      bizPaid:r[10]==='TRUE', bizName:r[11]||'', reimb:r[12]==='TRUE', reimbFrom:r[13]||'',
+      reimbDone:r[14]==='TRUE', recurring:r[15]==='TRUE', notes:r[16]||'', receipt:r[17]||''
     }));
   }
 
@@ -1959,6 +2070,8 @@ async function loadFromSheets() {
     if (r[0]==='stephanyBiz2') appData.assets.stephanyBiz2 = parseFloat(r[1])||0;
     if (r[0]==='other') appData.assets.other = parseFloat(r[1])||0;
     if (r[0]==='budgetLimits') { try { appData.budgetLimits = JSON.parse(r[1]); } catch(e){} }
+    if (r[0]==='accountBalances') { try { appData.accountBalances = JSON.parse(r[1]); } catch(e){} }
+    if (r[0]==='transfers') { try { appData.transfers = JSON.parse(r[1]); } catch(e){} }
   });
 
   showToast('Data loaded from Google Sheets ✓');
@@ -1974,6 +2087,17 @@ function openModal(name) {
     document.getElementById('tx-cat').innerHTML = CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
   }
   if (name === 'addIncome') document.getElementById('inc-date').value = new Date().toISOString().split('T')[0];
+  if (name === 'transferFunds') document.getElementById('transfer-date').value = new Date().toISOString().split('T')[0];
+  if (name === 'editAccounts') {
+    if (appData.accountBalances) {
+      document.getElementById('acc-diego-current').value = appData.accountBalances.diego_current||'';
+      document.getElementById('acc-diego-savings').value = appData.accountBalances.diego_savings||'';
+      document.getElementById('acc-stephany-current').value = appData.accountBalances.stephany_current||'';
+      document.getElementById('acc-stephany-savings').value = appData.accountBalances.stephany_savings||'';
+      document.getElementById('acc-joint-current').value = appData.accountBalances.joint_current||'';
+      document.getElementById('acc-joint-savings').value = appData.accountBalances.joint_savings||'';
+    }
+  }
   if (name === 'savingsWithdraw') document.getElementById('withdraw-date').value = new Date().toISOString().split('T')[0];
   if (name === 'editAssets') {
     document.getElementById('asset-savings').value = calcSavingsBalance().toFixed(2);
@@ -2048,6 +2172,149 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// =============================================
+// ACCOUNTS
+// =============================================
+
+const ACCOUNT_NAMES = {
+  diego_current: "Diego current",
+  diego_savings: "Diego savings",
+  stephany_current: "Stephany current",
+  stephany_savings: "Stephany savings",
+  joint_current: "Joint current",
+  joint_savings: "Joint savings"
+};
+
+const ACCOUNT_COLORS = {
+  diego_current: 'var(--blue)', diego_savings: 'var(--teal)',
+  stephany_current: '#7B3FA8', stephany_savings: '#9B5FD8',
+  joint_current: 'var(--amber)', joint_savings: 'var(--green)'
+};
+
+const ACCOUNT_BG = {
+  diego_current: 'var(--blue-bg)', diego_savings: 'var(--teal-bg)',
+  stephany_current: '#F3E8FB', stephany_savings: '#EEE0FA',
+  joint_current: 'var(--amber-bg)', joint_savings: 'var(--green-bg)'
+};
+
+function calcAccountBalance(accountKey) {
+  const opening = appData.accountBalances[accountKey] || 0;
+  const txs = appData.transactions.filter(t => t.account === accountKey);
+  const transfers = appData.transfers || [];
+  let balance = opening;
+  txs.forEach(t => {
+    if (t.type === 'income') balance += t.amountAWG;
+    else if (t.type === 'expense') balance -= t.amountAWG;
+    else if (t.type === 'savings') balance -= t.amountAWG;
+    else if (t.type === 'savings-withdrawal') balance += t.amountAWG;
+  });
+  transfers.forEach(tr => {
+    if (tr.from === accountKey) balance -= tr.amount;
+    if (tr.to === accountKey) balance += tr.amount;
+  });
+  return balance;
+}
+
+function renderAccountsPage() {
+  const accounts = Object.keys(ACCOUNT_NAMES);
+  document.getElementById('accountsGrid').innerHTML = accounts.map(key => {
+    const bal = calcAccountBalance(key);
+    const opening = appData.accountBalances[key] || 0;
+    const isNeg = bal < 0;
+    return `<div class="card" style="margin-bottom:0;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:36px;height:36px;border-radius:8px;background:${ACCOUNT_BG[key]};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:${ACCOUNT_COLORS[key]};">${ACCOUNT_NAMES[key][0]}</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;">${ACCOUNT_NAMES[key]}</div>
+          <div style="font-size:10px;color:var(--text3);">Opening: ${fmt(opening)}</div>
+        </div>
+      </div>
+      <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:${isNeg?'var(--red)':ACCOUNT_COLORS[key]};">${fmt(bal)}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px;">${appData.transactions.filter(t=>t.account===key).length} transactions</div>
+    </div>`;
+  }).join('');
+
+  // Account filter tx list
+  filterAccountTx(appData.accountFilter || 'all');
+}
+
+function filterAccountTx(filter, btn) {
+  appData.accountFilter = filter;
+  if (btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  let txs = [...appData.transactions].sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (filter !== 'all') txs = txs.filter(t => t.account === filter);
+  const transfers = (appData.transfers||[]).filter(tr => filter === 'all' || tr.from === filter || tr.to === filter);
+
+  const allItems = [
+    ...txs.map(t => ({...t, _type:'tx'})),
+    ...transfers.map(tr => ({...tr, _type:'transfer', date:tr.date}))
+  ].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,30);
+
+  document.getElementById('accountTxList').innerHTML = allItems.map(item => {
+    if (item._type === 'transfer') {
+      return `<div class="tx-item">
+        <div class="tx-avatar" style="background:var(--blue-bg);color:var(--blue);">&#8644;</div>
+        <div class="tx-info">
+          <div class="tx-name">${item.note || 'Transfer'}</div>
+          <div class="tx-meta">${ACCOUNT_NAMES[item.from]||item.from} → ${ACCOUNT_NAMES[item.to]||item.to} · ${item.date}</div>
+        </div>
+        <div class="tx-right"><div class="tx-amount" style="color:var(--blue);">${fmt(item.amount)}</div></div>
+      </div>`;
+    }
+    const isIncome = item.type === 'income' || item.type === 'savings-withdrawal';
+    const acctName = ACCOUNT_NAMES[item.account] || item.account || '—';
+    return `<div class="tx-item">
+      <div class="tx-avatar" style="background:${isIncome?'var(--green-bg)':'var(--red-bg)'};color:${isIncome?'var(--green)':'var(--red)'};">${(item.desc||'?')[0].toUpperCase()}</div>
+      <div class="tx-info">
+        <div class="tx-name">${item.desc}</div>
+        <div class="tx-meta">${item.cat} · ${item.date} · ${cap(item.person)} · <span style="color:${ACCOUNT_COLORS[item.account]||'var(--text3)'};">${acctName}</span></div>
+      </div>
+      <div class="tx-right"><div class="tx-amount ${isIncome?'pos':'neg'}">${isIncome?'+':'-'}${fmt(item.amountAWG)}</div></div>
+    </div>`;
+  }).join('') || '<p style="color:var(--text3);font-size:13px;padding:16px 0;">No transactions for this account.</p>';
+}
+
+function saveTransfer() {
+  const from = document.getElementById('transfer-from').value;
+  const to = document.getElementById('transfer-to').value;
+  const amount = parseFloat(document.getElementById('transfer-amount').value)||0;
+  const date = document.getElementById('transfer-date').value;
+  const note = document.getElementById('transfer-note').value;
+  if (!amount || !date || from === to) { showToast('Please fill in all fields and choose different accounts'); return; }
+  if (!appData.transfers) appData.transfers = [];
+  appData.transfers.push({ id: Date.now(), from, to, amount, date, note });
+
+  // Also add to savings ledger if moving to/from savings account
+  if (to.includes('savings')) {
+    const lastBal = appData.savingsLedger.length ? appData.savingsLedger[appData.savingsLedger.length-1].balance : appData.savingsOpening;
+    appData.savingsLedger.push({ id:Date.now(), date, type:'deposit', amount, note: note||`Transfer from ${ACCOUNT_NAMES[from]}`, balance: lastBal+amount, account: to });
+  }
+
+  closeModal('transferFunds');
+  showToast('Transfer saved');
+  renderAccountsPage();
+  syncToSheets();
+}
+
+function saveAccountBalances() {
+  if (!appData.accountBalances) appData.accountBalances = {};
+  appData.accountBalances.diego_current = parseFloat(document.getElementById('acc-diego-current').value)||0;
+  appData.accountBalances.diego_savings = parseFloat(document.getElementById('acc-diego-savings').value)||0;
+  appData.accountBalances.stephany_current = parseFloat(document.getElementById('acc-stephany-current').value)||0;
+  appData.accountBalances.stephany_savings = parseFloat(document.getElementById('acc-stephany-savings').value)||0;
+  appData.accountBalances.joint_current = parseFloat(document.getElementById('acc-joint-current').value)||0;
+  appData.accountBalances.joint_savings = parseFloat(document.getElementById('acc-joint-savings').value)||0;
+  // Also update savings opening to joint savings for backward compat
+  appData.savingsOpening = appData.accountBalances.joint_savings;
+  closeModal('editAccounts');
+  showToast('Account balances saved');
+  renderAccountsPage();
+  syncToSheets();
 }
 
 // Init — load saved settings from localStorage
