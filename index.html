@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maduro Family Finance</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F6F2;
+  --surface: #FFFFFF;
+  --surface2: #F0EFE9;
+  --border: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.15);
+  --text: #1A1A18;
+  --text2: #6B6B65;
+  --text3: #9E9E96;
+  --green: #1D7A55;
+  --green-bg: #E8F5EE;
+  --red: #C0392B;
+  --red-bg: #FBEAEA;
+  --blue: #1A5FA8;
+  --blue-bg: #E8F0FA;
+  --amber: #A0520A;
+  --amber-bg: #FDF3E3;
+  --teal: #0F6E6E;
+  --teal-bg: #E3F5F5;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+button { font-family: 'DM Sans', sans-serif; cursor: pointer; }
+input, select, textarea { font-family: 'DM Sans', sans-serif; }
+
+/* Layout */
+#app { display: flex; height: 100vh; overflow: hidden; }
+.sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+.main-content { flex: 1; overflow-y: auto; background: var(--bg); }
+
+/* Sidebar */
+.sidebar-logo { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
+.sidebar-logo h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+.sidebar-logo p { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.sidebar-month { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.sidebar-month span { font-size: 12px; font-weight: 500; }
+.month-nav { background: none; border: none; color: var(--text2); font-size: 14px; padding: 2px 4px; }
+.month-nav:hover { color: var(--text); }
+.nav-section { padding: 10px 0 4px; }
+.nav-section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); padding: 4px 18px 6px; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 18px; font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--blue-bg); color: var(--blue); font-weight: 500; }
+.nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+/* Pages */
+.page { display: none; padding: 24px 28px; }
+.page.active { display: block; }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+.page-title { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; }
+.page-subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+/* Buttons */
+.btn { padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); transition: all 0.15s; }
+.btn:hover { background: var(--surface2); }
+.btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
+.btn-primary:hover { opacity: 0.85; }
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+.btn-danger { background: var(--red-bg); color: var(--red); border-color: transparent; }
+
+/* Cards */
+.card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 18px 20px; box-shadow: var(--shadow); }
+.card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); margin-bottom: 14px; }
+
+/* Metrics grid */
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.metric-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 16px 18px; box-shadow: var(--shadow); }
+.metric-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.metric-value { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; font-family: 'DM Mono', monospace; }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.metric-value.green { color: var(--green); }
+.metric-value.red { color: var(--red); }
+.metric-value.blue { color: var(--blue); }
+.metric-value.amber { color: var(--amber); }
+
+/* 2-col grid */
+.grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+/* Transactions */
+.tx-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.tx-item:last-child { border-bottom: none; }
+.tx-avatar { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.tx-info { flex: 1; min-width: 0; }
+.tx-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-meta { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.tx-right { text-align: right; flex-shrink: 0; }
+.tx-amount { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.tx-amount.neg { color: var(--red); }
+.tx-amount.pos { color: var(--green); }
+.badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 5px; margin-top: 3px; }
+.badge-biz { background: var(--teal-bg); color: var(--teal); }
+.badge-reimb { background: var(--amber-bg); color: var(--amber); }
+.badge-reimb-done { background: var(--green-bg); color: var(--green); }
+.badge-diego { background: var(--blue-bg); color: var(--blue); }
+.badge-stephany { background: #F3E8FB; color: #7B3FA8; }
+
+/* Budget bars */
+.budget-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+.budget-cat { font-size: 12px; color: var(--text2); width: 90px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.budget-bar-bg { flex: 1; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.budget-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.budget-amounts { font-size: 11px; color: var(--text2); width: 75px; text-align: right; flex-shrink: 0; font-family: 'DM Mono', monospace; }
+.budget-over { color: var(--red) !important; }
+
+/* Savings goals */
+.goal-card { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.goal-card:last-child { border-bottom: none; }
+.goal-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.goal-name { font-size: 13px; font-weight: 500; }
+.goal-pct { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.goal-bar-bg { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+.goal-bar-fill { height: 100%; border-radius: 3px; }
+.goal-footer { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); }
+
+/* Loans */
+.loan-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.loan-row:last-child { border-bottom: none; }
+.loan-name { font-size: 13px; font-weight: 500; }
+.loan-who { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.loan-balance { font-size: 13px; font-weight: 600; color: var(--red); font-family: 'DM Mono', monospace; }
+.loan-payment { font-size: 11px; color: var(--text3); text-align: right; margin-top: 1px; }
+
+/* Net worth */
+.nw-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.nw-row:last-child { border-bottom: none; }
+.nw-total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 10px; border-top: 1px solid var(--border-strong); margin-top: 6px; }
+.nw-total-label { font-size: 13px; font-weight: 600; }
+.nw-total-val { font-size: 18px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--blue); }
+
+/* Forms / Modals */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+.modal-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; letter-spacing: -0.3px; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 5px; }
+.form-row input, .form-row select, .form-row textarea { width: 100%; padding: 9px 12px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font-size: 13px; outline: none; transition: border-color 0.15s; }
+.form-row input:focus, .form-row select:focus { border-color: var(--blue); }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.toggle-label { font-size: 13px; }
+.toggle-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
+
+/* Filter bar */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filter-btn { padding: 5px 12px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text2); cursor: pointer; transition: all 0.15s; }
+.filter-btn.active, .filter-btn:hover { background: var(--text); color: #fff; border-color: var(--text); }
+.filter-select { padding: 5px 10px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text3); padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+
+/* Section header */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.section-title { font-size: 14px; font-weight: 600; }
+
+/* Auth screen */
+.auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.auth-card { background: var(--surface); border-radius: 20px; padding: 40px; width: 420px; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+.auth-logo { font-size: 32px; margin-bottom: 16px; }
+.auth-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+.auth-sub { font-size: 14px; color: var(--text2); margin-bottom: 28px; line-height: 1.5; }
+.btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--surface); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; margin-bottom: 12px; }
+.btn-google:hover { background: var(--surface2); }
+.btn-demo { width: 100%; padding: 10px; border-radius: var(--radius); border: none; background: var(--blue); color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+.btn-demo:hover { opacity: 0.85; }
+.auth-note { font-size: 11px; color: var(--text3); margin-top: 16px; line-height: 1.6; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff; padding: 10px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 500; z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* Upload area */
+.upload-area { border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 16px; text-align: center; cursor: pointer; transition: all 0.15s; background: var(--surface2); }
+.upload-area:hover { border-color: var(--blue); background: var(--blue-bg); }
+.upload-area p { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* Savings balance big */
+.savings-big { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--green); letter-spacing: -1px; }
+.savings-big-sub { font-size: 12px; color: var(--text3); margin-bottom: 14px; margin-top: 2px; }
+
+/* EF cards */
+.ef-mini { background: var(--surface2); border-radius: var(--radius); padding: 10px 12px; flex: 1; }
+.ef-mini-label { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.ef-mini-val { font-size: 15px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--blue); }
+
+/* Salary ref panel */
+.salary-ref { background: var(--surface2); border-radius: var(--radius); padding: 12px 14px; }
+.salary-ref-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+.salary-ref-row.total { font-weight: 600; border-top: 1px solid var(--border-strong); margin-top: 4px; padding-top: 6px; }
+
+/* Yearly chart placeholder */
+.yearly-bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding: 0 4px; }
+.ybar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 2px; }
+.ybar-wrap { display: flex; gap: 2px; align-items: flex-end; width: 100%; justify-content: center; }
+.ybar { width: 10px; border-radius: 3px 3px 0 0; min-height: 4px; }
+.ybar-label { font-size: 9px; color: var(--text3); }
+
+/* Pending reimb list */
+.reimb-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.reimb-item:last-child { border-bottom: none; }
+
+/* Currency converter */
+.converter-inline { background: var(--blue-bg); border-radius: var(--radius); padding: 10px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.converter-inline label { font-size: 12px; color: var(--blue); font-weight: 500; }
+.converter-inline input { width: 90px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--surface); font-size: 13px; }
+.converter-inline span { font-size: 13px; font-weight: 600; color: var(--blue); font-family: 'DM Mono', monospace; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* Setup guide */
+.setup-step { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.setup-step:last-child { border-bottom: none; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.step-content h4 { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.step-content p { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.step-content code { font-family: 'DM Mono', monospace; background: var(--surface2); padding: 1px 5px; border-radius: 4px; font-size: 11px; color: var(--text); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .sidebar { width: 60px; }
+  .sidebar-logo p, .nav-section-label, .nav-item span, .sidebar-month span { display: none; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .sidebar-month { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">💰</div>
+    <div class="auth-title">Maduro Family Finance</div>
+    <div class="auth-sub">Track your family finances together. Connect with Google to sync your data securely to Google Sheets.</div>
+    <button class="btn-google" onclick="connectGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+      Sign in with Google
+    </button>
+    <button class="btn-demo" onclick="loadDemo()">Try Demo Mode (no Google needed)</button>
+    <p class="auth-note">Your data is stored in your own Google Drive. We never store your financial information on any external server. Google OAuth is used only to access your personal spreadsheet.</p>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="mainApp" style="display:none;">
+<div id="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Maduro Finance</h1>
+      <p>Family tracker</p>
+    </div>
+    <div class="sidebar-month">
+      <button class="month-nav" onclick="changeMonth(-1)">&#8592;</button>
+      <span id="monthLabel">Apr 2026</span>
+      <button class="month-nav" onclick="changeMonth(1)">&#8594;</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Overview</div>
+      <button class="nav-item active" onclick="showPage('dashboard', this)"><span class="nav-icon">&#9632;</span><span>Dashboard</span></button>
+      <button class="nav-item" onclick="showPage('transactions', this)"><span class="nav-icon">&#8644;</span><span>Transactions</span></button>
+      <button class="nav-item" onclick="showPage('yearly', this)"><span class="nav-icon">&#128200;</span><span>Yearly view</span></button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Money</div>
+      <button class="nav-item" onclick="showPage('income', this)"><span class="nav-icon">&#43;</span><span>Income</span></button>
+      <button class="nav-item" onclick="showPage('savings', this)"><span class="nav-icon">&#9679;</span><span>Savings & goals</span></button>
+      <button class="nav-item" onclick="showPage('loans', this)"><span class="nav-icon">&#8595;</span><span>Loans</span></button>
+      <button class="nav-item" onclick="showPage('networth', this)"><span class="nav-icon">&#9670;</span><span>Net worth</span></button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Tools</div>
+      <button class="nav-item" onclick="showPage('budget', this)"><span class="nav-icon">&#9632;</span><span>Budget limits</span></button>
+      <button class="nav-item" onclick="showPage('reports', this)"><span class="nav-icon">&#128196;</span><span>Reports</span></button>
+      <button class="nav-item" onclick="showPage('settings', this)"><span class="nav-icon">&#9881;</span><span>Settings</span></button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle" id="dashSubtitle">April 2026 overview</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="openModal('addTransaction')">+ Add transaction</button>
+          <button class="btn btn-sm btn-primary" onclick="syncToSheets()">&#8645; Sync to Sheets</button>
+        </div>
+      </div>
+
+      <div class="metrics-grid" id="metricsGrid"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Recent transactions</div>
+          <div id="recentTxList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Budget vs actual</div>
+          <div id="budgetBars"></div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">Savings</div>
+          <div class="savings-big" id="savingsBal">AWG 0</div>
+          <div class="savings-big-sub">Current balance</div>
+          <div id="savingsGoalsMini"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Loans & liabilities</div>
+          <div id="loansMini"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Net worth snapshot</div>
+          <div id="netWorthMini"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">Pending reimbursements</div>
+          </div>
+          <div id="reimbList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Emergency fund</div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;" id="efCards"></div>
+          <div id="efBars"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div id="page-transactions" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Transactions</div>
+          <div class="page-subtitle" id="txSubtitle">All transactions this month</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('addTransaction')">+ Add transaction</button>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterTx('all', this)">All</button>
+        <button class="filter-btn" onclick="filterTx('diego', this)">Diego</button>
+        <button class="filter-btn" onclick="filterTx('stephany', this)">Stephany</button>
+        <button class="filter-btn" onclick="filterTx('business', this)">Business paid</button>
+        <button class="filter-btn" onclick="filterTx('reimb', this)">Pending reimbursement</button>
+        <select class="filter-select" id="catFilter" onchange="filterByCategory()">
+          <option value="">All categories</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="data-table" id="txTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Person</th>
+              <th>Amount</th>
+              <th>Flags</th>
+              <th>Receipt</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="txTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- YEARLY VIEW -->
+    <div id="page-yearly" class="page">
+      <div class="page-header">
+        <div class="page-title">Yearly overview — <span id="yearlyYear">2026</span></div>
+      </div>
+      <div class="metrics-grid" id="yearlyMetrics"></div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Monthly income vs expenses vs savings</div>
+        <div id="yearlyChart"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Month by month breakdown</div>
+        <table class="data-table" id="yearlyTable">
+          <thead>
+            <tr><th>Month</th><th>Income</th><th>Expenses</th><th>Savings dep.</th><th>Surplus</th><th>Savings rate</th></tr>
+          </thead>
+          <tbody id="yearlyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INCOME -->
+    <div id="page-income" class="page">
+      <div class="page-header">
+        <div class="page-title">Income</div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('addIncome')">+ Add income</button>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Diego — salary reference</div>
+          <div class="salary-ref">
+            <div class="salary-ref-row"><span>Gross salary</span><span>AWG 3,500.00</span></div>
+            <div class="salary-ref-row" style="color:var(--text3);"><span>Pension (your share)</span><span>- AWG 350.00</span></div>
+            <div class="salary-ref-row" style="color:var(--text3);"><span>AOV/AWW</span><span>- AWG 523.72</span></div>
+            <div class="salary-ref-row" style="color:var(--text3);"><span>AZV</span><span>- AWG 354.78</span></div>
+            <div class="salary-ref-row" style="color:var(--text3);"><span>Acquisition costs</span><span>- AWG 109.91</span></div>
+            <div class="salary-ref-row" style="color:var(--text3);"><span>Car fringe (net zero)</span><span>AWG 0</span></div>
+            <div class="salary-ref-row total"><span>Net take-home</span><span style="color:var(--green);">AWG 3,325.00</span></div>
+          </div>
+          <p style="font-size:11px;color:var(--text3);margin-top:8px;">Employer contributions (pension, AOV, AZV) are not personal costs and excluded from budget.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Stephany — salary reference</div>
+          <div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center;">Salary slip pending.<br>Add it in Settings when available.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Income entries this month</div>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Person</th><th>Source</th><th>Amount</th><th>Notes</th></tr></thead>
+          <tbody id="incomeTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SAVINGS & GOALS -->
+    <div id="page-savings" class="page">
+      <div class="page-header">
+        <div class="page-title">Savings & goals</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="openModal('savingsWithdraw')">Withdraw</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('addGoal')">+ Add goal</button>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-bottom:16px;">
+        <div class="metric-card">
+          <div class="metric-label">Current balance</div>
+          <div class="metric-value green" id="savingsBalPage">AWG 0</div>
+          <div class="metric-sub">Includes all deposits</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total deposited</div>
+          <div class="metric-value blue" id="totalDeposited">AWG 0</div>
+          <div class="metric-sub">Since start</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total withdrawn</div>
+          <div class="metric-value amber" id="totalWithdrawn">AWG 0</div>
+          <div class="metric-sub">Since start</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">Savings goals</div>
+          </div>
+          <div id="goalsListFull"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Savings ledger</div>
+          <div id="savingsLedger"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOANS -->
+    <div id="page-loans" class="page">
+      <div class="page-header">
+        <div class="page-title">Loans & liabilities</div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('addLoan')">+ Add loan</button>
+      </div>
+      <div id="loansFullList"></div>
+    </div>
+
+    <!-- NET WORTH -->
+    <div id="page-networth" class="page">
+      <div class="page-header">
+        <div class="page-title">Net worth</div>
+        <button class="btn btn-sm" onclick="openModal('editAssets')">Edit assets</button>
+      </div>
+      <div class="metrics-grid" id="nwMetrics"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Assets</div>
+          <div id="assetsList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Liabilities</div>
+          <div id="liabilitiesList"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:0;">
+        <p style="font-size:11px;color:var(--text3);">Vehicle (pickup truck) is excluded — registered under Veterinary Kliniek Aruba and is a company asset. Business values are manually set estimates — update quarterly in Settings.</p>
+      </div>
+    </div>
+
+    <!-- BUDGET -->
+    <div id="page-budget" class="page">
+      <div class="page-header">
+        <div class="page-title">Budget limits</div>
+        <button class="btn btn-primary btn-sm" onclick="saveBudgetLimits()">Save limits</button>
+      </div>
+      <div class="card">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Set monthly spending limits per category. You'll see warnings at 80% and alerts when over budget.</p>
+        <div id="budgetLimitsForm"></div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="page-reports" class="page">
+      <div class="page-header">
+        <div class="page-title">Reports</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-header"><div class="section-title">End of year tax report</div></div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">Generates an annual summary of gross income, AOV/AZV/pension deductions, and net take-home for tax filing reference in Aruba.</p>
+          <div class="form-row">
+            <label>Year</label>
+            <select id="reportYear"><option>2026</option><option>2025</option></select>
+          </div>
+          <button class="btn btn-primary" onclick="generateTaxReport()">Generate tax report</button>
+        </div>
+        <div class="card">
+          <div class="section-header"><div class="section-title">Monthly export</div></div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">Export all transactions for a selected month as a CSV file.</p>
+          <div class="form-row">
+            <label>Month</label>
+            <select id="exportMonth" id="exportMonth"></select>
+          </div>
+          <button class="btn btn-primary" onclick="exportCSV()">Export CSV</button>
+        </div>
+      </div>
+      <div class="card" id="taxReportOutput" style="display:none;margin-top:0;"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page">
+      <div class="page-header">
+        <div class="page-title">Settings</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-header"><div class="section-title">Google Sheets connection</div></div>
+          <div id="sheetsStatus" style="font-size:13px;color:var(--text2);margin-bottom:12px;"></div>
+          <div class="form-row">
+            <label>Sheet ID (from your Google Sheet URL)</label>
+            <input type="text" id="sheetIdInput" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+          </div>
+          <div class="form-row">
+            <label>Google API Client ID</label>
+            <input type="text" id="clientIdInput" placeholder="your-client-id.apps.googleusercontent.com">
+          </div>
+          <button class="btn btn-primary" onclick="saveSheetSettings()">Save & connect</button>
+        </div>
+        <div class="card">
+          <div class="section-header"><div class="section-title">Savings opening balance</div></div>
+          <div class="form-row">
+            <label>Current savings balance (AWG)</label>
+            <input type="number" id="savingsOpeningInput" placeholder="0.00">
+          </div>
+          <button class="btn btn-primary" onclick="setSavingsOpening()">Set balance</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-header"><div class="section-title">Business asset values</div></div>
+          <div class="form-row">
+            <label>S.A.W. Pet Crematorium — Diego's share value (AWG)</label>
+            <input type="number" id="diegoBizVal" placeholder="0">
+          </div>
+          <div class="form-row">
+            <label>S.A.W. Pet Crematorium — Stephany's share value (AWG)</label>
+            <input type="number" id="stephanyBizVal1" placeholder="0">
+          </div>
+          <div class="form-row">
+            <label>Veterinary Kliniek Aruba — Stephany's share value (AWG)</label>
+            <input type="number" id="stephanyBizVal2" placeholder="0">
+          </div>
+          <button class="btn btn-primary" onclick="saveAssetValues()">Save asset values</button>
+        </div>
+        <div class="card">
+          <div class="section-header"><div class="section-title">Currency converter</div></div>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Use when logging transactions in USD or other currencies.</p>
+          <div class="converter-inline">
+            <label>USD</label>
+            <input type="number" id="usdInput" placeholder="100" oninput="convertCurrency()">
+            <span>&#8594;</span>
+            <span id="awgOutput">AWG 179.80</span>
+          </div>
+          <p style="font-size:11px;color:var(--text3);margin-top:8px;">Rate: 1 USD = 1.798 AWG (fixed peg)</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-header"><div class="section-title">Google Sheets setup guide</div></div>
+        <div class="setup-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Create a Google Sheet</h4>
+            <p>Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> and create a new spreadsheet. Name it "Maduro Family Finance". Copy the Sheet ID from the URL — it's the long string between <code>/d/</code> and <code>/edit</code>. Share it with <code>stephany.a.wever@gmail.com</code> as Editor.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Create a Google Cloud project</h4>
+            <p>Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>. Click "New Project", name it "Maduro Finance". Then go to "APIs & Services" → "Enable APIs" and enable the <strong>Google Sheets API</strong> and <strong>Google Drive API</strong>.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Create OAuth credentials</h4>
+            <p>In Google Cloud Console, go to "APIs & Services" → "Credentials" → "Create credentials" → "OAuth 2.0 Client ID". Choose "Web application". Add your GitHub Pages URL as an authorized origin (e.g. <code>https://yourusername.github.io</code>). Copy the Client ID and paste it in the field above.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Deploy to GitHub Pages</h4>
+            <p>Create a free account at <a href="https://github.com" target="_blank">github.com</a>. Create a new repository named <code>maduro-finance</code>. Upload this <code>index.html</code> file. Go to Settings → Pages → Source: main branch. Your app will be live at <code>https://yourusername.github.io/maduro-finance</code>.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Connect & start tracking</h4>
+            <p>Open your GitHub Pages URL, click "Sign in with Google", enter your Sheet ID and Client ID in Settings, and click "Save & connect". From this point all transactions save automatically to your Google Sheet. Stephany can access both the app URL and the Google Sheet directly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end app -->
+</div><!-- end mainApp -->
+
+<!-- MODALS -->
+
+<!-- Add Transaction -->
+<div class="modal-overlay" id="modal-addTransaction">
+  <div class="modal">
+    <div class="modal-title">Add transaction</div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Date</label>
+        <input type="date" id="tx-date">
+      </div>
+      <div class="form-row">
+        <label>Person</label>
+        <select id="tx-person">
+          <option value="diego">Diego</option>
+          <option value="stephany">Stephany</option>
+          <option value="joint">Joint</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Description</label>
+      <input type="text" id="tx-desc" placeholder="e.g. Super Food Plaza">
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Category</label>
+        <select id="tx-cat"></select>
+      </div>
+      <div class="form-row">
+        <label>Type</label>
+        <select id="tx-type">
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+          <option value="savings">Savings deposit</option>
+          <option value="savings-withdrawal">Savings withdrawal</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Amount</label>
+        <input type="number" id="tx-amount" placeholder="0.00">
+      </div>
+      <div class="form-row">
+        <label>Currency</label>
+        <select id="tx-currency">
+          <option value="AWG">AWG</option>
+          <option value="USD">USD → AWG</option>
+          <option value="EUR">EUR → AWG</option>
+        </select>
+      </div>
+    </div>
+    <div id="currencyConvertRow" style="display:none;" class="form-row">
+      <label>Converted amount (AWG)</label>
+      <input type="number" id="tx-amount-awg" placeholder="0.00" readonly style="background:var(--surface2);">
+    </div>
+    <div class="form-row">
+      <label>Notes (optional)</label>
+      <input type="text" id="tx-notes" placeholder="Optional note">
+    </div>
+    <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom:14px;">
+      <div class="toggle-row">
+        <div><div class="toggle-label">Business paid</div><div class="toggle-sub">Company covered this expense</div></div>
+        <input type="checkbox" id="tx-bizpaid">
+      </div>
+      <div class="toggle-row" id="bizNameRow" style="display:none;">
+        <div style="flex:1;padding-right:12px;"><div class="toggle-label">Business name</div></div>
+        <input type="text" id="tx-bizname" placeholder="e.g. Pet Crematorium Aruba" style="width:200px;padding:5px 9px;border-radius:6px;border:1px solid var(--border-strong);font-size:12px;">
+      </div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">Pending reimbursement</div><div class="toggle-sub">You paid, expecting money back</div></div>
+        <input type="checkbox" id="tx-reimb">
+      </div>
+      <div class="toggle-row" id="reimbFromRow" style="display:none;">
+        <div style="flex:1;padding-right:12px;"><div class="toggle-label">Reimbursement from</div></div>
+        <input type="text" id="tx-reimbfrom" placeholder="e.g. Pet Crematorium Aruba" style="width:200px;padding:5px 9px;border-radius:6px;border:1px solid var(--border-strong);font-size:12px;">
+      </div>
+      <div class="toggle-row" style="border-bottom:none;">
+        <div><div class="toggle-label">Recurring monthly</div><div class="toggle-sub">Auto-log every month</div></div>
+        <input type="checkbox" id="tx-recurring">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Receipt photo / PDF</label>
+      <div class="upload-area" onclick="document.getElementById('receiptFile').click()">
+        <div>&#128247; Click to attach receipt</div>
+        <p id="receiptFileName">Uploads to Google Drive automatically</p>
+      </div>
+      <input type="file" id="receiptFile" accept="image/*,application/pdf" style="display:none;" onchange="handleReceiptFile(this)">
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addTransaction')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTransaction()">Save transaction</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Goal -->
+<div class="modal-overlay" id="modal-addGoal">
+  <div class="modal">
+    <div class="modal-title">Add savings goal</div>
+    <div class="form-row"><label>Goal name</label><input type="text" id="goal-name" placeholder="e.g. New car, Vacation to Colombia"></div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Target amount (AWG)</label><input type="number" id="goal-target" placeholder="0"></div>
+      <div class="form-row"><label>Target date</label><input type="date" id="goal-date"></div>
+    </div>
+    <div class="form-row"><label>Current amount saved toward this goal (AWG)</label><input type="number" id="goal-current" placeholder="0"></div>
+    <div class="form-row"><label>Color</label>
+      <select id="goal-color">
+        <option value="#185FA5">Blue</option>
+        <option value="#1D9E75">Green</option>
+        <option value="#BA7517">Amber</option>
+        <option value="#7B3FA8">Purple</option>
+        <option value="#C0392B">Red</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addGoal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGoal()">Add goal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Loan -->
+<div class="modal-overlay" id="modal-addLoan">
+  <div class="modal">
+    <div class="modal-title">Add loan / liability</div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Loan name</label><input type="text" id="loan-name" placeholder="e.g. School loan"></div>
+      <div class="form-row"><label>Person</label>
+        <select id="loan-person">
+          <option value="diego">Diego</option>
+          <option value="stephany">Stephany</option>
+          <option value="joint">Joint</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row"><label>Lender</label><input type="text" id="loan-lender" placeholder="e.g. Bank, Father, etc."></div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Remaining balance (AWG)</label><input type="number" id="loan-balance" placeholder="0"></div>
+      <div class="form-row"><label>Monthly payment (AWG)</label><input type="number" id="loan-payment" placeholder="0"></div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Interest rate (%)</label><input type="number" id="loan-rate" placeholder="0" step="0.1"></div>
+      <div class="form-row"><label>Status</label>
+        <select id="loan-status">
+          <option value="active">Active</option>
+          <option value="planned">Planned</option>
+          <option value="paid">Paid off</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row"><label>Notes</label><input type="text" id="loan-notes" placeholder="Optional notes"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addLoan')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLoan()">Add loan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Savings Withdraw -->
+<div class="modal-overlay" id="modal-savingsWithdraw">
+  <div class="modal">
+    <div class="modal-title">Withdraw from savings</div>
+    <div class="form-row"><label>Amount (AWG)</label><input type="number" id="withdraw-amount" placeholder="0.00"></div>
+    <div class="form-row"><label>Reason</label><input type="text" id="withdraw-reason" placeholder="e.g. Car repair, vacation expenses"></div>
+    <div class="form-row"><label>Date</label><input type="date" id="withdraw-date"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('savingsWithdraw')">Cancel</button>
+      <button class="btn btn-danger" onclick="saveWithdrawal()">Withdraw</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Income -->
+<div class="modal-overlay" id="modal-addIncome">
+  <div class="modal">
+    <div class="modal-title">Add income entry</div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Person</label>
+        <select id="inc-person">
+          <option value="diego">Diego</option>
+          <option value="stephany">Stephany</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Date</label><input type="date" id="inc-date"></div>
+    </div>
+    <div class="form-row"><label>Source</label><input type="text" id="inc-source" placeholder="e.g. Pet Crematorium salary"></div>
+    <div class="form-row"><label>Net amount (AWG)</label><input type="number" id="inc-amount" placeholder="0.00"></div>
+    <div class="form-row"><label>Notes</label><input type="text" id="inc-notes" placeholder="Optional"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('addIncome')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveIncome()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Assets -->
+<div class="modal-overlay" id="modal-editAssets">
+  <div class="modal">
+    <div class="modal-title">Edit asset values</div>
+    <div class="form-row"><label>Savings account balance (AWG) — auto-updated</label><input type="number" id="asset-savings" placeholder="0" readonly style="background:var(--surface2);"></div>
+    <div class="form-row"><label>Diego — S.A.W. Pet Crematorium share value (AWG)</label><input type="number" id="asset-diego-biz" placeholder="0"></div>
+    <div class="form-row"><label>Stephany — S.A.W. Pet Crematorium share value (AWG)</label><input type="number" id="asset-stephany-biz1" placeholder="0"></div>
+    <div class="form-row"><label>Stephany — Veterinary Kliniek Aruba share value (AWG)</label><input type="number" id="asset-stephany-biz2" placeholder="0"></div>
+    <div class="form-row"><label>Other assets (jewelry, valuables, etc.) AWG</label><input type="number" id="asset-other" placeholder="0"></div>
+    <p style="font-size:11px;color:var(--text3);margin-top:4px;">The pickup truck is excluded — it is a company asset of Veterinary Kliniek Aruba.</p>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal('editAssets')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAssets()">Save assets</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// DATA STORE
+// =============================================
+const CATEGORIES = [
+  'Rent','Electricity','Water','Internet','Phone/Mobile',
+  'Groceries','Dining Out','School tuition','School supplies',
+  'Nanny','Kids activities','Kids clothing','Fuel',
+  'Car insurance','Car maintenance','Health insurance',
+  'Doctor/Dentist','Medication','Subscriptions','Clothing',
+  'Gym/Sports','Entertainment','Gifts','Travel/Vacation',
+  'Grandmother retirement home','Family support',
+  'School loan payment','Business loan payment',
+  'Credit card payment','Savings transfer','Other'
+];
+
+const BIZ_PAID_CATS = ['Electricity','Water','Internet','Phone/Mobile'];
+
+let appData = {
+  transactions: [],
+  loans: [],
+  goals: [],
+  savingsLedger: [],
+  savingsOpening: 0,
+  assets: { diegoBiz: 0, stephanyBiz1: 0, stephanyBiz2: 0, other: 0 },
+  budgetLimits: {},
+  settings: { sheetId: '', clientId: '' },
+  currentMonth: new Date().getMonth(),
+  currentYear: new Date().getFullYear(),
+  txFilter: 'all',
+  catFilter: '',
+  googleToken: null,
+  isDemo: false
+};
+
+// =============================================
+// AUTH
+// =============================================
+function connectGoogle() {
+  showToast('Google OAuth setup required — see Settings for setup guide. Loading demo mode for now.');
+  loadDemo();
+}
+
+function loadDemo() {
+  appData.isDemo = true;
+  loadDemoData();
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  renderAll();
+  showToast('Demo mode loaded. Connect Google in Settings when ready.');
+}
+
+function loadDemoData() {
+  const y = appData.currentYear;
+  const m = String(appData.currentMonth + 1).padStart(2,'0');
+  appData.transactions = [
+    { id:1, date:`${y}-${m}-01`, desc:'Diego net salary', cat:'Income', type:'income', person:'diego', amount:3325, currency:'AWG', amountAWG:3325, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:2, date:`${y}-${m}-01`, desc:'Stephany net salary', cat:'Income', type:'income', person:'stephany', amount:2800, currency:'AWG', amountAWG:2800, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:3, date:`${y}-${m}-02`, desc:'Rent — Noord', cat:'Rent', type:'expense', person:'joint', amount:1200, currency:'AWG', amountAWG:1200, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:4, date:`${y}-${m}-05`, desc:'Setar electricity', cat:'Electricity', type:'expense', person:'joint', amount:380, currency:'AWG', amountAWG:380, bizPaid:true, bizName:'Pet Crematorium Aruba', reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:5, date:`${y}-${m}-05`, desc:'Setar water', cat:'Water', type:'expense', person:'joint', amount:95, currency:'AWG', amountAWG:95, bizPaid:true, bizName:'Pet Crematorium Aruba', reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:6, date:`${y}-${m}-05`, desc:'Setarnet internet', cat:'Internet', type:'expense', person:'joint', amount:120, currency:'AWG', amountAWG:120, bizPaid:true, bizName:'Pet Crematorium Aruba', reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:7, date:`${y}-${m}-06`, desc:'Nanny — Maria', cat:'Nanny', type:'expense', person:'joint', amount:600, currency:'AWG', amountAWG:600, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:8, date:`${y}-${m}-08`, desc:'Super Food Plaza', cat:'Groceries', type:'expense', person:'stephany', amount:234.50, currency:'AWG', amountAWG:234.50, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:false, notes:'', receipt:'' },
+    { id:9, date:`${y}-${m}-10`, desc:'Truck suspension upgrade', cat:'Car maintenance', type:'expense', person:'diego', amount:450, currency:'AWG', amountAWG:450, bizPaid:false, reimb:true, reimbFrom:'Pet Crematorium Aruba', reimbDone:false, recurring:false, notes:'', receipt:'' },
+    { id:10, date:`${y}-${m}-12`, desc:'Ling & Sons groceries', cat:'Groceries', type:'expense', person:'diego', amount:186.75, currency:'AWG', amountAWG:186.75, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:false, notes:'', receipt:'' },
+    { id:11, date:`${y}-${m}-14`, desc:'Screaming Eagle dining', cat:'Dining Out', type:'expense', person:'joint', amount:165, currency:'AWG', amountAWG:165, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:false, notes:'', receipt:'' },
+    { id:12, date:`${y}-${m}-15`, desc:'Amelia school tuition', cat:'School tuition', type:'expense', person:'joint', amount:550, currency:'AWG', amountAWG:550, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:13, date:`${y}-${m}-15`, desc:'Grandmother retirement home', cat:'Grandmother retirement home', type:'expense', person:'diego', amount:250, currency:'AWG', amountAWG:250, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:14, date:`${y}-${m}-16`, desc:'Savings transfer', cat:'Savings transfer', type:'savings', person:'joint', amount:200, currency:'AWG', amountAWG:200, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'Auto', receipt:'' },
+    { id:15, date:`${y}-${m}-18`, desc:'Netflix + Spotify', cat:'Subscriptions', type:'expense', person:'joint', amount:89, currency:'AWG', amountAWG:89, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:true, notes:'', receipt:'' },
+    { id:16, date:`${y}-${m}-20`, desc:'Valero fuel', cat:'Fuel', type:'expense', person:'diego', amount:145, currency:'AWG', amountAWG:145, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:false, notes:'', receipt:'' },
+    { id:17, date:`${y}-${m}-22`, desc:'Farmacia Oduber', cat:'Medication', type:'expense', person:'stephany', amount:67, currency:'AWG', amountAWG:67, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:false, notes:'', receipt:'' },
+    { id:18, date:`${y}-${m}-22`, desc:'Super Food Plaza', cat:'Groceries', type:'expense', person:'stephany', amount:312, currency:'AWG', amountAWG:312, bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:false, notes:'Weekly shop', receipt:'' },
+  ];
+  appData.loans = [
+    { id:1, name:'School loan', person:'diego', lender:'Government', balance:12400, payment:350, rate:3.5, status:'active', notes:'' },
+    { id:2, name:'Business loan', person:'stephany', lender:'Aruba Bank', balance:28000, payment:620, rate:5.5, status:'active', notes:'' },
+    { id:3, name:'Family loan', person:'stephany', lender:'Father', balance:8500, payment:200, rate:0, status:'active', notes:'Interest free' },
+    { id:4, name:'Partner buyout', person:'stephany', lender:'Business partner', balance:35000, payment:0, rate:0, status:'planned', notes:'Target 2027' },
+    { id:5, name:'School loan', person:'stephany', lender:'Government', balance:9800, payment:280, rate:3.5, status:'active', notes:'' },
+  ];
+  appData.goals = [
+    { id:1, name:'New car', target:20000, current:8400, date:'2027-12-01', color:'#185FA5' },
+    { id:2, name:'Vacation', target:5000, current:900, date:'2026-07-01', color:'#1D9E75' },
+    { id:3, name:'House deposit', target:60000, current:4200, date:'2029-01-01', color:'#7B3FA8' },
+  ];
+  appData.savingsLedger = [
+    { id:1, date:'2026-01-01', type:'opening', amount:3400, note:'Opening balance', balance:3400 },
+    { id:2, date:'2026-01-16', type:'deposit', amount:200, note:'Monthly transfer', balance:3600 },
+    { id:3, date:'2026-02-16', type:'deposit', amount:200, note:'Monthly transfer', balance:3800 },
+    { id:4, date:'2026-03-16', type:'deposit', amount:200, note:'Monthly transfer', balance:4000 },
+    { id:5, date:`${y}-${m}-16`, type:'deposit', amount:200, note:'Monthly transfer', balance:4200 },
+  ];
+  appData.savingsOpening = 3400;
+  appData.assets = { diegoBiz:45000, stephanyBiz1:18000, stephanyBiz2:22000, other:0 };
+  appData.budgetLimits = {
+    'Groceries':800,'Dining Out':300,'Fuel':300,'Subscriptions':150,
+    'Nanny':600,'School tuition':600,'Grandmother retirement home':250,
+    'Rent':1200,'Entertainment':200,'Kids activities':150,'Clothing':200
+  };
+}
+
+// =============================================
+// NAVIGATION
+// =============================================
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  renderPage(name);
+}
+
+function renderPage(name) {
+  if (name === 'dashboard') renderDashboard();
+  else if (name === 'transactions') renderTransactions();
+  else if (name === 'yearly') renderYearly();
+  else if (name === 'savings') renderSavingsPage();
+  else if (name === 'loans') renderLoansPage();
+  else if (name === 'networth') renderNetWorth();
+  else if (name === 'budget') renderBudgetPage();
+  else if (name === 'income') renderIncomePage();
+  else if (name === 'settings') renderSettings();
+}
+
+function renderAll() {
+  renderDashboard();
+  updateMonthLabel();
+}
+
+// =============================================
+// MONTH NAVIGATION
+// =============================================
+function changeMonth(dir) {
+  appData.currentMonth += dir;
+  if (appData.currentMonth > 11) { appData.currentMonth = 0; appData.currentYear++; }
+  if (appData.currentMonth < 0) { appData.currentMonth = 11; appData.currentYear--; }
+  updateMonthLabel();
+  renderAll();
+}
+
+function updateMonthLabel() {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('monthLabel').textContent = months[appData.currentMonth] + ' ' + appData.currentYear;
+  const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  if (document.getElementById('dashSubtitle')) document.getElementById('dashSubtitle').textContent = fullMonths[appData.currentMonth] + ' ' + appData.currentYear + ' overview';
+}
+
+// =============================================
+// GET MONTH TRANSACTIONS
+// =============================================
+function getMonthTx(month, year) {
+  return appData.transactions.filter(t => {
+    const d = new Date(t.date);
+    return d.getMonth() === month && d.getFullYear() === year;
+  });
+}
+
+function getMonthExpenses(month, year) {
+  return getMonthTx(month, year).filter(t => t.type === 'expense' && !t.bizPaid);
+}
+
+function getMonthIncome(month, year) {
+  return getMonthTx(month, year).filter(t => t.type === 'income');
+}
+
+// =============================================
+// DASHBOARD
+// =============================================
+function renderDashboard() {
+  const txs = getMonthTx(appData.currentMonth, appData.currentYear);
+  const income = txs.filter(t => t.type === 'income').reduce((a,t) => a + t.amountAWG, 0);
+  const expenses = txs.filter(t => t.type === 'expense' && !t.bizPaid).reduce((a,t) => a + t.amountAWG, 0);
+  const bizPaid = txs.filter(t => t.bizPaid).reduce((a,t) => a + t.amountAWG, 0);
+  const savingsDep = txs.filter(t => t.type === 'savings').reduce((a,t) => a + t.amountAWG, 0);
+  const surplus = income - expenses - savingsDep;
+  const savingsRate = income > 0 ? ((savingsDep / income) * 100).toFixed(1) : 0;
+
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-card"><div class="metric-label">Total income</div><div class="metric-value blue">${fmt(income)}</div><div class="metric-sub">Diego + Stephany</div></div>
+    <div class="metric-card"><div class="metric-label">Total expenses</div><div class="metric-value red">${fmt(expenses)}</div><div class="metric-sub">${txs.filter(t=>t.type==='expense'&&!t.bizPaid).length} transactions</div></div>
+    <div class="metric-card"><div class="metric-label">Monthly surplus</div><div class="metric-value ${surplus >= 0 ? 'green':'red'}">${fmt(surplus)}</div><div class="metric-sub">Savings rate: ${savingsRate}%</div></div>
+    <div class="metric-card"><div class="metric-label">Business covered</div><div class="metric-value amber">${fmt(bizPaid)}</div><div class="metric-sub">Elec + Water + Net + Phone</div></div>
+  `;
+
+  // Recent transactions
+  const recent = [...txs].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,6);
+  document.getElementById('recentTxList').innerHTML = recent.map(t => txRow(t)).join('') || '<p style="color:var(--text3);font-size:13px;padding:12px 0;">No transactions this month.</p>';
+
+  // Budget bars
+  renderBudgetBars();
+
+  // Savings mini
+  const savBal = calcSavingsBalance();
+  document.getElementById('savingsBal').textContent = fmt(savBal);
+  document.getElementById('savingsGoalsMini').innerHTML = appData.goals.slice(0,3).map(g => goalMiniRow(g, savBal)).join('');
+
+  // Loans mini
+  const activeLoans = appData.loans.filter(l => l.status === 'active');
+  document.getElementById('loansMini').innerHTML = activeLoans.slice(0,4).map(l => `
+    <div class="loan-row">
+      <div><div class="loan-name">${l.name}</div><div class="loan-who">${cap(l.person)} · ${l.lender}</div></div>
+      <div style="text-align:right;"><div class="loan-balance">-${fmt(l.balance)}</div><div class="loan-payment">${fmt(l.payment)}/mo</div></div>
+    </div>
+  `).join('') || '<p style="color:var(--text3);font-size:13px;">No active loans.</p>';
+
+  // Net worth mini
+  renderNetWorthMini();
+
+  // Reimbursements
+  const reimbs = appData.transactions.filter(t => t.reimb && !t.reimbDone);
+  document.getElementById('reimbList').innerHTML = reimbs.length ? reimbs.map(t => `
+    <div class="reimb-item">
+      <div><div style="font-size:13px;font-weight:500;">${t.desc}</div><div style="font-size:11px;color:var(--text3);">${t.reimbFrom} · ${t.date}</div></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:13px;font-weight:600;color:var(--amber);font-family:'DM Mono',monospace;">${fmt(t.amountAWG)}</span>
+        <button class="btn btn-sm" onclick="markReimbursed(${t.id})" style="font-size:11px;">Mark received</button>
+      </div>
+    </div>
+  `).join('') : '<p style="color:var(--text3);font-size:13px;padding:8px 0;">No pending reimbursements.</p>';
+
+  // Emergency fund
+  const fixedExpenses = calcFixedExpenses();
+  const ef3 = fixedExpenses * 3;
+  const ef6 = fixedExpenses * 6;
+  const savBal2 = calcSavingsBalance();
+  document.getElementById('efCards').innerHTML = `
+    <div class="ef-mini"><div class="ef-mini-label">3 months</div><div class="ef-mini-val">${fmt(ef3)}</div></div>
+    <div class="ef-mini"><div class="ef-mini-label">6 months</div><div class="ef-mini-val">${fmt(ef6)}</div></div>
+  `;
+  const ef3pct = Math.min(100, (savBal2/ef3*100).toFixed(1));
+  const ef6pct = Math.min(100, (savBal2/ef6*100).toFixed(1));
+  document.getElementById('efBars').innerHTML = `
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--text2);">3-month fund</span><span style="color:var(--text3);">${fmt(savBal2)} / ${fmt(ef3)} (${ef3pct}%)</span></div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${ef3pct}%;background:${ef3pct>=100?'var(--green)':ef3pct>=60?'#BA7517':'#185FA5'};"></div></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--text2);">6-month fund</span><span style="color:var(--text3);">${fmt(savBal2)} / ${fmt(ef6)} (${ef6pct}%)</span></div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${ef6pct}%;background:${ef6pct>=100?'var(--green)':ef6pct>=60?'#BA7517':'#185FA5'};"></div></div>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:8px;">Based on ${fmt(fixedExpenses)}/mo fixed expenses</p>
+  `;
+}
+
+function txRow(t) {
+  const isIncome = t.type === 'income' || t.type === 'savings';
+  const color = isIncome ? 'var(--green-bg)' : 'var(--red-bg)';
+  const textColor = isIncome ? 'var(--green)' : 'var(--red)';
+  const initial = t.desc[0].toUpperCase();
+  const personBadge = t.person === 'diego' ? `<span class="badge badge-diego">Diego</span>` : t.person === 'stephany' ? `<span class="badge badge-stephany">Stephany</span>` : `<span class="badge" style="background:var(--surface2);color:var(--text2);">Joint</span>`;
+  const bizBadge = t.bizPaid ? `<span class="badge badge-biz">Business paid</span>` : '';
+  const reimbBadge = t.reimb && !t.reimbDone ? `<span class="badge badge-reimb">Pending reimb.</span>` : t.reimb && t.reimbDone ? `<span class="badge badge-reimb-done">Reimbursed</span>` : '';
+  return `
+    <div class="tx-item">
+      <div class="tx-avatar" style="background:${color};color:${textColor};">${initial}</div>
+      <div class="tx-info">
+        <div class="tx-name">${t.desc}</div>
+        <div class="tx-meta">${t.cat} · ${t.date} · ${cap(t.person)}</div>
+        <div>${personBadge}${bizBadge}${reimbBadge}</div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-amount ${isIncome ? 'pos':'neg'}">${isIncome ? '+':'-'}${fmt(t.amountAWG)}</div>
+        ${t.receipt ? `<a href="${t.receipt}" target="_blank" style="font-size:10px;color:var(--blue);">&#128247; receipt</a>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderBudgetBars() {
+  const txs = getMonthTx(appData.currentMonth, appData.currentYear);
+  const spending = {};
+  txs.filter(t => t.type === 'expense' && !t.bizPaid).forEach(t => {
+    spending[t.cat] = (spending[t.cat] || 0) + t.amountAWG;
+  });
+  const limited = Object.keys(appData.budgetLimits).filter(c => appData.budgetLimits[c] > 0);
+  document.getElementById('budgetBars').innerHTML = limited.map(cat => {
+    const spent = spending[cat] || 0;
+    const limit = appData.budgetLimits[cat];
+    const pct = Math.min(110, (spent/limit*100));
+    const over = spent > limit;
+    const warn = pct >= 80 && !over;
+    const color = over ? '#E24B4A' : warn ? '#BA7517' : '#185FA5';
+    return `
+      <div class="budget-row">
+        <div class="budget-cat" title="${cat}">${cat}</div>
+        <div class="budget-bar-bg"><div class="budget-bar-fill" style="width:${Math.min(100,pct)}%;background:${color};"></div></div>
+        <div class="budget-amounts ${over?'budget-over':''}">${Math.round(spent)}/${Math.round(limit)}${over?' ▲':''}</div>
+      </div>
+    `;
+  }).join('') || '<p style="color:var(--text3);font-size:13px;">No budget limits set. Go to Budget limits to set them.</p>';
+}
+
+// =============================================
+// TRANSACTIONS PAGE
+// =============================================
+function renderTransactions() {
+  // Populate category filter
+  const catFilter = document.getElementById('catFilter');
+  catFilter.innerHTML = '<option value="">All categories</option>' + CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+
+  let txs = getMonthTx(appData.currentMonth, appData.currentYear).sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (appData.txFilter === 'diego') txs = txs.filter(t => t.person === 'diego');
+  else if (appData.txFilter === 'stephany') txs = txs.filter(t => t.person === 'stephany');
+  else if (appData.txFilter === 'business') txs = txs.filter(t => t.bizPaid);
+  else if (appData.txFilter === 'reimb') txs = txs.filter(t => t.reimb && !t.reimbDone);
+  if (appData.catFilter) txs = txs.filter(t => t.cat === appData.catFilter);
+
+  document.getElementById('txSubtitle').textContent = `${txs.length} transaction${txs.length!==1?'s':''} · ${months()[appData.currentMonth]} ${appData.currentYear}`;
+  document.getElementById('txTableBody').innerHTML = txs.map(t => {
+    const isIncome = t.type === 'income' || t.type === 'savings';
+    return `<tr>
+      <td>${t.date}</td>
+      <td>${t.desc}${t.notes ? `<br><span style="font-size:11px;color:var(--text3);">${t.notes}</span>` : ''}</td>
+      <td>${t.cat}</td>
+      <td>${t.person==='diego'?`<span class="badge badge-diego">Diego</span>`:t.person==='stephany'?`<span class="badge badge-stephany">Stephany</span>`:`<span class="badge" style="background:var(--surface2);color:var(--text2);">Joint</span>`}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:600;color:${isIncome?'var(--green)':'var(--red)'};">${isIncome?'+':'-'}${fmt(t.amountAWG)}</td>
+      <td>${t.bizPaid?`<span class="badge badge-biz">Business</span>`:''}${t.reimb&&!t.reimbDone?`<span class="badge badge-reimb">Reimb.</span>`:''}${t.recurring?`<span class="badge" style="background:var(--teal-bg);color:var(--teal);">Recurring</span>`:''}</td>
+      <td>${t.receipt?`<a href="${t.receipt}" target="_blank" style="color:var(--blue);font-size:12px;">&#128247; View</a>`:'-'}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteTransaction(${t.id})">&#10005;</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px;">No transactions found.</td></tr>';
+}
+
+function filterTx(type, btn) {
+  appData.txFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderTransactions();
+}
+
+function filterByCategory() {
+  appData.catFilter = document.getElementById('catFilter').value;
+  renderTransactions();
+}
+
+// =============================================
+// YEARLY VIEW
+// =============================================
+function renderYearly() {
+  document.getElementById('yearlyYear').textContent = appData.currentYear;
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let totIncome=0, totExpenses=0, totSavings=0;
+  const rows = [];
+  const chartData = [];
+
+  for (let m=0; m<12; m++) {
+    const txs = getMonthTx(m, appData.currentYear);
+    const inc = txs.filter(t=>t.type==='income').reduce((a,t)=>a+t.amountAWG,0);
+    const exp = txs.filter(t=>t.type==='expense'&&!t.bizPaid).reduce((a,t)=>a+t.amountAWG,0);
+    const sav = txs.filter(t=>t.type==='savings').reduce((a,t)=>a+t.amountAWG,0);
+    const sur = inc - exp - sav;
+    const rate = inc > 0 ? (sav/inc*100).toFixed(1) : 0;
+    totIncome+=inc; totExpenses+=exp; totSavings+=sav;
+    const hasTx = txs.length > 0;
+    rows.push(`<tr style="${!hasTx?'opacity:0.4':''}">
+      <td>${monthNames[m]}</td>
+      <td style="color:var(--green);font-family:'DM Mono',monospace;">${inc>0?fmt(inc):'-'}</td>
+      <td style="color:var(--red);font-family:'DM Mono',monospace;">${exp>0?fmt(exp):'-'}</td>
+      <td style="color:var(--blue);font-family:'DM Mono',monospace;">${sav>0?fmt(sav):'-'}</td>
+      <td style="color:${sur>=0?'var(--green)':'var(--red)'};font-family:'DM Mono',monospace;">${inc>0?fmt(sur):'-'}</td>
+      <td>${inc>0?rate+'%':'-'}</td>
+    </tr>`);
+    chartData.push({month:monthNames[m],inc,exp,sav});
+  }
+
+  document.getElementById('yearlyMetrics').innerHTML = `
+    <div class="metric-card"><div class="metric-label">Total income</div><div class="metric-value green">${fmt(totIncome)}</div></div>
+    <div class="metric-card"><div class="metric-label">Total expenses</div><div class="metric-value red">${fmt(totExpenses)}</div></div>
+    <div class="metric-card"><div class="metric-label">Total savings</div><div class="metric-value blue">${fmt(totSavings)}</div></div>
+    <div class="metric-card"><div class="metric-label">Net surplus</div><div class="metric-value ${totIncome-totExpenses-totSavings>=0?'green':'red'}">${fmt(totIncome-totExpenses-totSavings)}</div></div>
+  `;
+
+  const maxVal = Math.max(...chartData.map(d => Math.max(d.inc,d.exp))) || 1;
+  const barH = 100;
+  document.getElementById('yearlyChart').innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:4px;height:${barH+24}px;padding:0 4px;">
+      ${chartData.map(d => {
+        const ih = d.inc > 0 ? Math.max(4, (d.inc/maxVal*barH)) : 0;
+        const eh = d.exp > 0 ? Math.max(4, (d.exp/maxVal*barH)) : 0;
+        const sh = d.sav > 0 ? Math.max(4, (d.sav/maxVal*barH)) : 0;
+        return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;">
+          <div style="display:flex;gap:2px;align-items:flex-end;height:${barH}px;">
+            <div style="width:8px;height:${ih}px;background:var(--green);border-radius:2px 2px 0 0;opacity:0.85;"></div>
+            <div style="width:8px;height:${eh}px;background:var(--red);border-radius:2px 2px 0 0;opacity:0.85;"></div>
+            <div style="width:8px;height:${sh}px;background:var(--blue);border-radius:2px 2px 0 0;opacity:0.85;"></div>
+          </div>
+          <div style="font-size:9px;color:var(--text3);">${d.month}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:16px;margin-top:8px;justify-content:center;">
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);"><div style="width:10px;height:10px;background:var(--green);border-radius:2px;"></div>Income</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);"><div style="width:10px;height:10px;background:var(--red);border-radius:2px;"></div>Expenses</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);"><div style="width:10px;height:10px;background:var(--blue);border-radius:2px;"></div>Savings</div>
+    </div>
+  `;
+  document.getElementById('yearlyTableBody').innerHTML = rows.join('');
+}
+
+// =============================================
+// INCOME PAGE
+// =============================================
+function renderIncomePage() {
+  const txs = getMonthTx(appData.currentMonth, appData.currentYear).filter(t => t.type === 'income');
+  document.getElementById('incomeTableBody').innerHTML = txs.map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td>${t.person==='diego'?`<span class="badge badge-diego">Diego</span>`:`<span class="badge badge-stephany">Stephany</span>`}</td>
+      <td>${t.desc}</td>
+      <td style="color:var(--green);font-family:'DM Mono',monospace;font-weight:600;">+${fmt(t.amountAWG)}</td>
+      <td style="color:var(--text3);font-size:12px;">${t.notes||''}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px;">No income entries this month.</td></tr>';
+}
+
+// =============================================
+// SAVINGS
+// =============================================
+function calcSavingsBalance() {
+  return appData.savingsLedger.reduce((a,e) => {
+    return e.type === 'withdrawal' ? a - e.amount : a + (e.type === 'opening' ? e.amount : e.amount);
+  }, 0) - appData.savingsOpening + appData.savingsOpening;
+}
+
+function renderSavingsPage() {
+  const bal = calcSavingsBalance();
+  const deposits = appData.savingsLedger.filter(e => e.type !== 'withdrawal' && e.type !== 'opening').reduce((a,e) => a+e.amount, 0) + appData.savingsOpening;
+  const withdrawals = appData.savingsLedger.filter(e => e.type === 'withdrawal').reduce((a,e) => a+e.amount, 0);
+  document.getElementById('savingsBalPage').textContent = fmt(bal);
+  document.getElementById('totalDeposited').textContent = fmt(deposits);
+  document.getElementById('totalWithdrawn').textContent = fmt(withdrawals);
+
+  document.getElementById('goalsListFull').innerHTML = appData.goals.map(g => {
+    const pct = Math.min(100, (g.current/g.target*100)).toFixed(1);
+    const monthly = calcMonthlyNeeded(g);
+    return `<div class="goal-card">
+      <div class="goal-header"><span class="goal-name">${g.name}</span><span class="goal-pct">${pct}%</span></div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%;background:${g.color};"></div></div>
+      <div class="goal-footer">
+        <span>${fmt(g.current)} / ${fmt(g.target)}</span>
+        <span>Target: ${g.date}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px;">Need ~${fmt(monthly)}/mo to reach goal on time</div>
+      <div style="margin-top:6px;display:flex;gap:6px;">
+        <button class="btn btn-sm" onclick="addToGoal(${g.id})">+ Add funds</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteGoal(${g.id})">Remove</button>
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:var(--text3);font-size:13px;padding:12px 0;">No goals yet. Add one!</p>';
+
+  document.getElementById('savingsLedger').innerHTML = [...appData.savingsLedger].reverse().slice(0,12).map(e => `
+    <div class="tx-item">
+      <div class="tx-avatar" style="background:${e.type==='withdrawal'?'var(--red-bg)':'var(--green-bg)'};color:${e.type==='withdrawal'?'var(--red)':'var(--green)'};">${e.type==='withdrawal'?'&#8595;':'&#8593;'}</div>
+      <div class="tx-info"><div class="tx-name">${e.note}</div><div class="tx-meta">${e.date}</div></div>
+      <div class="tx-right"><div class="tx-amount ${e.type==='withdrawal'?'neg':'pos'}">${e.type==='withdrawal'?'-':'+'}${fmt(e.amount)}</div><div style="font-size:11px;color:var(--text3);">Bal: ${fmt(e.balance)}</div></div>
+    </div>
+  `).join('');
+}
+
+function calcMonthlyNeeded(goal) {
+  const today = new Date();
+  const target = new Date(goal.date);
+  const months = Math.max(1, (target.getFullYear()-today.getFullYear())*12 + (target.getMonth()-today.getMonth()));
+  return (goal.target - goal.current) / months;
+}
+
+function goalMiniRow(g, savBal) {
+  const pct = Math.min(100, (g.current/g.target*100)).toFixed(1);
+  return `<div class="goal-card" style="padding:8px 0;">
+    <div class="goal-header"><span class="goal-name">${g.name}</span><span class="goal-pct">${fmt(g.current)} / ${fmt(g.target)}</span></div>
+    <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%;background:${g.color};"></div></div>
+  </div>`;
+}
+
+// =============================================
+// LOANS
+// =============================================
+function renderLoansPage() {
+  const people = ['diego','stephany'];
+  document.getElementById('loansFullList').innerHTML = people.map(p => {
+    const pLoans = appData.loans.filter(l => l.person === p);
+    if (!pLoans.length) return '';
+    const totalBal = pLoans.reduce((a,l) => a+l.balance, 0);
+    const totalPay = pLoans.filter(l=>l.status==='active').reduce((a,l) => a+l.payment, 0);
+    return `<div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <div class="section-title">${cap(p)}'s loans</div>
+        <div style="font-size:12px;color:var(--text3);">Total: <span style="color:var(--red);font-weight:600;font-family:'DM Mono',monospace;">${fmt(totalBal)}</span> · <span style="color:var(--text2);">${fmt(totalPay)}/mo</span></div>
+      </div>
+      ${pLoans.map(l => loanFullRow(l)).join('')}
+    </div>`;
+  }).join('') + `<div class="card" style="margin-bottom:16px;">
+    <div class="section-title" style="margin-bottom:14px;">Joint loans</div>
+    ${appData.loans.filter(l=>l.person==='joint').map(l=>loanFullRow(l)).join('') || '<p style="color:var(--text3);font-size:13px;">No joint loans.</p>'}
+  </div>`;
+}
+
+function loanFullRow(l) {
+  const monthsLeft = l.payment > 0 ? Math.ceil(l.balance / l.payment) : 0;
+  const payoffDate = l.payment > 0 ? (() => { const d = new Date(); d.setMonth(d.getMonth()+monthsLeft); return d.toLocaleDateString('en-US',{month:'short',year:'numeric'}); })() : 'N/A';
+  const totalInterest = l.rate > 0 && l.payment > 0 ? ((l.payment * monthsLeft) - l.balance).toFixed(0) : 0;
+  return `<div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div>
+        <div style="font-size:14px;font-weight:600;">${l.name}</div>
+        <div style="font-size:12px;color:var(--text3);">${l.lender}${l.notes?` · ${l.notes}`:''}</div>
+      </div>
+      <span class="badge ${l.status==='planned'?'badge-reimb':l.status==='paid'?'badge-reimb-done':'badge-biz'}">${l.status}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      <div class="ef-mini"><div class="ef-mini-label">Balance</div><div class="ef-mini-val" style="color:var(--red);">${fmt(l.balance)}</div></div>
+      <div class="ef-mini"><div class="ef-mini-label">Monthly</div><div class="ef-mini-val">${fmt(l.payment)}</div></div>
+      <div class="ef-mini"><div class="ef-mini-label">Rate</div><div class="ef-mini-val">${l.rate}%</div></div>
+      <div class="ef-mini"><div class="ef-mini-label">Payoff est.</div><div class="ef-mini-val" style="font-size:12px;">${payoffDate}</div></div>
+    </div>
+    ${totalInterest>0?`<div style="font-size:11px;color:var(--text3);margin-top:8px;">Total interest to pay: ~${fmt(totalInterest)}</div>`:''}
+    <div style="margin-top:10px;display:flex;gap:6px;">
+      <button class="btn btn-sm" onclick="makePayment(${l.id})">Log payment</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteLoan(${l.id})">Remove</button>
+    </div>
+  </div>`;
+}
+
+// =============================================
+// NET WORTH
+// =============================================
+function calcNetWorth() {
+  const savBal = calcSavingsBalance();
+  const assets = savBal + appData.assets.diegoBiz + appData.assets.stephanyBiz1 + appData.assets.stephanyBiz2 + appData.assets.other;
+  const loansBal = appData.loans.filter(l=>l.status==='active').reduce((a,l)=>a+l.balance,0);
+  const ccBal = 0;
+  const liabilities = loansBal + ccBal;
+  return { assets, liabilities, net: assets - liabilities, savBal, loansBal };
+}
+
+function renderNetWorthMini() {
+  const nw = calcNetWorth();
+  document.getElementById('netWorthMini').innerHTML = `
+    <div style="margin-bottom:8px;">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;font-weight:600;letter-spacing:0.04em;">Assets</div>
+      <div class="nw-row"><span>Savings</span><span style="color:var(--green);">+${fmt(nw.savBal)}</span></div>
+      <div class="nw-row"><span>Business interests</span><span style="color:var(--green);">+${fmt(appData.assets.diegoBiz+appData.assets.stephanyBiz1+appData.assets.stephanyBiz2)}</span></div>
+      ${appData.assets.other>0?`<div class="nw-row"><span>Other</span><span style="color:var(--green);">+${fmt(appData.assets.other)}</span></div>`:''}
+    </div>
+    <div style="margin-bottom:8px;">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;font-weight:600;letter-spacing:0.04em;">Liabilities</div>
+      <div class="nw-row"><span>All loans</span><span style="color:var(--red);">-${fmt(nw.loansBal)}</span></div>
+    </div>
+    <div class="nw-total">
+      <span class="nw-total-label">Net worth</span>
+      <span class="nw-total-val" style="color:${nw.net>=0?'var(--green)':'var(--red)'};">${nw.net>=0?'+':''}${fmt(nw.net)}</span>
+    </div>
+    <p style="font-size:10px;color:var(--text3);margin-top:6px;">Vehicle excluded — company asset</p>
+  `;
+}
+
+function renderNetWorth() {
+  const nw = calcNetWorth();
+  document.getElementById('nwMetrics').innerHTML = `
+    <div class="metric-card"><div class="metric-label">Total assets</div><div class="metric-value green">${fmt(nw.assets)}</div></div>
+    <div class="metric-card"><div class="metric-label">Total liabilities</div><div class="metric-value red">${fmt(nw.liabilities)}</div></div>
+    <div class="metric-card"><div class="metric-label">Net worth</div><div class="metric-value ${nw.net>=0?'green':'red'}">${fmt(nw.net)}</div></div>
+    <div class="metric-card"><div class="metric-label">Debt-to-asset ratio</div><div class="metric-value amber">${nw.assets>0?(nw.liabilities/nw.assets*100).toFixed(1)+'%':'N/A'}</div></div>
+  `;
+  document.getElementById('assetsList').innerHTML = `
+    <div class="nw-row"><span>Savings account</span><span style="color:var(--green);font-family:'DM Mono',monospace;">+${fmt(nw.savBal)}</span></div>
+    <div class="nw-row"><span>Diego — S.A.W. Pet Crematorium</span><span style="color:var(--green);font-family:'DM Mono',monospace;">+${fmt(appData.assets.diegoBiz)}</span></div>
+    <div class="nw-row"><span>Stephany — S.A.W. Pet Crematorium</span><span style="color:var(--green);font-family:'DM Mono',monospace;">+${fmt(appData.assets.stephanyBiz1)}</span></div>
+    <div class="nw-row"><span>Stephany — Veterinary Kliniek Aruba</span><span style="color:var(--green);font-family:'DM Mono',monospace;">+${fmt(appData.assets.stephanyBiz2)}</span></div>
+    ${appData.assets.other>0?`<div class="nw-row"><span>Other valuables</span><span style="color:var(--green);font-family:'DM Mono',monospace;">+${fmt(appData.assets.other)}</span></div>`:''}
+    <div class="nw-row" style="font-weight:600;border-top:1px solid var(--border-strong);"><span>Total assets</span><span style="color:var(--green);font-family:'DM Mono',monospace;">+${fmt(nw.assets)}</span></div>
+  `;
+  document.getElementById('liabilitiesList').innerHTML = `
+    ${appData.loans.filter(l=>l.status==='active').map(l=>`
+      <div class="nw-row"><span>${l.name} (${cap(l.person)})</span><span style="color:var(--red);font-family:'DM Mono',monospace;">-${fmt(l.balance)}</span></div>
+    `).join('')}
+    <div class="nw-row" style="font-weight:600;border-top:1px solid var(--border-strong);"><span>Total liabilities</span><span style="color:var(--red);font-family:'DM Mono',monospace;">-${fmt(nw.liabilities)}</span></div>
+  `;
+}
+
+// =============================================
+// BUDGET PAGE
+// =============================================
+function renderBudgetPage() {
+  document.getElementById('budgetLimitsForm').innerHTML = CATEGORIES.filter(c => c !== 'Income').map(cat => `
+    <div class="budget-row" style="margin-bottom:12px;">
+      <div class="budget-cat" style="width:180px;">${cat}</div>
+      <input type="number" value="${appData.budgetLimits[cat]||''}" placeholder="No limit" id="blimit-${cat.replace(/[^a-z]/gi,'_')}" style="width:120px;padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border-strong);font-size:13px;background:var(--surface);">
+      <span style="font-size:12px;color:var(--text3);margin-left:8px;">AWG/mo</span>
+    </div>
+  `).join('');
+}
+
+function saveBudgetLimits() {
+  CATEGORIES.filter(c=>c!=='Income').forEach(cat => {
+    const id = 'blimit-' + cat.replace(/[^a-z]/gi,'_');
+    const el = document.getElementById(id);
+    if (el && el.value) appData.budgetLimits[cat] = parseFloat(el.value);
+    else if (el) delete appData.budgetLimits[cat];
+  });
+  showToast('Budget limits saved');
+}
+
+// =============================================
+// SETTINGS
+// =============================================
+function renderSettings() {
+  document.getElementById('sheetsStatus').textContent = appData.isDemo ? 'Running in demo mode. Connect Google Sheets to save data permanently.' : 'Connected to Google Sheets.';
+  document.getElementById('sheetIdInput').value = appData.settings.sheetId || '';
+  document.getElementById('clientIdInput').value = appData.settings.clientId || '';
+  document.getElementById('savingsOpeningInput').value = appData.savingsOpening || '';
+  document.getElementById('diegoBizVal').value = appData.assets.diegoBiz || '';
+  document.getElementById('stephanyBizVal1').value = appData.assets.stephanyBiz1 || '';
+  document.getElementById('stephanyBizVal2').value = appData.assets.stephanyBiz2 || '';
+}
+
+function saveSheetSettings() {
+  appData.settings.sheetId = document.getElementById('sheetIdInput').value;
+  appData.settings.clientId = document.getElementById('clientIdInput').value;
+  showToast('Settings saved. Reload and sign in with Google to connect.');
+}
+
+function setSavingsOpening() {
+  const val = parseFloat(document.getElementById('savingsOpeningInput').value);
+  if (!isNaN(val)) { appData.savingsOpening = val; showToast('Opening balance set to ' + fmt(val)); renderDashboard(); }
+}
+
+function saveAssetValues() {
+  appData.assets.diegoBiz = parseFloat(document.getElementById('diegoBizVal').value)||0;
+  appData.assets.stephanyBiz1 = parseFloat(document.getElementById('stephanyBizVal1').value)||0;
+  appData.assets.stephanyBiz2 = parseFloat(document.getElementById('stephanyBizVal2').value)||0;
+  showToast('Asset values saved');
+}
+
+function convertCurrency() {
+  const usd = parseFloat(document.getElementById('usdInput').value)||0;
+  document.getElementById('awgOutput').textContent = 'AWG ' + (usd*1.798).toFixed(2);
+}
+
+// =============================================
+// SAVE TRANSACTION
+// =============================================
+function saveTransaction() {
+  const currency = document.getElementById('tx-currency').value;
+  const amount = parseFloat(document.getElementById('tx-amount').value)||0;
+  const rates = { AWG:1, USD:1.798, EUR:1.96 };
+  const amountAWG = amount * rates[currency];
+  const bizPaid = document.getElementById('tx-bizpaid').checked;
+  const reimb = document.getElementById('tx-reimb').checked;
+  const type = document.getElementById('tx-type').value;
+  const tx = {
+    id: Date.now(),
+    date: document.getElementById('tx-date').value,
+    desc: document.getElementById('tx-desc').value,
+    cat: document.getElementById('tx-cat').value,
+    type,
+    person: document.getElementById('tx-person').value,
+    amount,
+    currency,
+    amountAWG,
+    bizPaid,
+    bizName: bizPaid ? document.getElementById('tx-bizname').value : '',
+    reimb,
+    reimbFrom: reimb ? document.getElementById('tx-reimbfrom').value : '',
+    reimbDone: false,
+    recurring: document.getElementById('tx-recurring').checked,
+    notes: document.getElementById('tx-notes').value,
+    receipt: ''
+  };
+  if (!tx.date || !tx.desc || !tx.amount) { showToast('Please fill in date, description and amount'); return; }
+  appData.transactions.push(tx);
+  if (type === 'savings') {
+    const lastBal = appData.savingsLedger.length ? appData.savingsLedger[appData.savingsLedger.length-1].balance : appData.savingsOpening;
+    appData.savingsLedger.push({ id:Date.now(), date:tx.date, type:'deposit', amount:amountAWG, note:tx.desc, balance:lastBal+amountAWG });
+  }
+  closeModal('addTransaction');
+  showToast('Transaction saved');
+  renderDashboard();
+  syncToSheets();
+}
+
+function saveGoal() {
+  const g = {
+    id: Date.now(),
+    name: document.getElementById('goal-name').value,
+    target: parseFloat(document.getElementById('goal-target').value)||0,
+    current: parseFloat(document.getElementById('goal-current').value)||0,
+    date: document.getElementById('goal-date').value,
+    color: document.getElementById('goal-color').value
+  };
+  if (!g.name || !g.target) { showToast('Please fill in goal name and target amount'); return; }
+  appData.goals.push(g);
+  closeModal('addGoal');
+  showToast('Goal added');
+  renderSavingsPage();
+}
+
+function saveLoan() {
+  const l = {
+    id: Date.now(),
+    name: document.getElementById('loan-name').value,
+    person: document.getElementById('loan-person').value,
+    lender: document.getElementById('loan-lender').value,
+    balance: parseFloat(document.getElementById('loan-balance').value)||0,
+    payment: parseFloat(document.getElementById('loan-payment').value)||0,
+    rate: parseFloat(document.getElementById('loan-rate').value)||0,
+    status: document.getElementById('loan-status').value,
+    notes: document.getElementById('loan-notes').value
+  };
+  if (!l.name) { showToast('Please enter a loan name'); return; }
+  appData.loans.push(l);
+  closeModal('addLoan');
+  showToast('Loan added');
+  renderLoansPage();
+}
+
+function saveWithdrawal() {
+  const amount = parseFloat(document.getElementById('withdraw-amount').value)||0;
+  const reason = document.getElementById('withdraw-reason').value;
+  const date = document.getElementById('withdraw-date').value;
+  if (!amount || !date) { showToast('Please fill in amount and date'); return; }
+  const lastBal = appData.savingsLedger.length ? appData.savingsLedger[appData.savingsLedger.length-1].balance : appData.savingsOpening;
+  appData.savingsLedger.push({ id:Date.now(), date, type:'withdrawal', amount, note:reason||'Withdrawal', balance:lastBal-amount });
+  closeModal('savingsWithdraw');
+  showToast('Withdrawal logged');
+  renderSavingsPage();
+}
+
+function saveIncome() {
+  const tx = {
+    id: Date.now(),
+    date: document.getElementById('inc-date').value,
+    desc: document.getElementById('inc-source').value,
+    cat: 'Income',
+    type: 'income',
+    person: document.getElementById('inc-person').value,
+    amount: parseFloat(document.getElementById('inc-amount').value)||0,
+    currency: 'AWG',
+    amountAWG: parseFloat(document.getElementById('inc-amount').value)||0,
+    bizPaid:false, reimb:false, reimbFrom:'', reimbDone:false, recurring:false,
+    notes: document.getElementById('inc-notes').value,
+    receipt: ''
+  };
+  if (!tx.date || !tx.desc || !tx.amount) { showToast('Please fill in all fields'); return; }
+  appData.transactions.push(tx);
+  closeModal('addIncome');
+  showToast('Income saved');
+  renderIncomePage();
+}
+
+function saveAssets() {
+  appData.assets.diegoBiz = parseFloat(document.getElementById('asset-diego-biz').value)||0;
+  appData.assets.stephanyBiz1 = parseFloat(document.getElementById('asset-stephany-biz1').value)||0;
+  appData.assets.stephanyBiz2 = parseFloat(document.getElementById('asset-stephany-biz2').value)||0;
+  appData.assets.other = parseFloat(document.getElementById('asset-other').value)||0;
+  closeModal('editAssets');
+  showToast('Assets updated');
+  renderNetWorth();
+}
+
+// =============================================
+// ACTIONS
+// =============================================
+function deleteTransaction(id) {
+  appData.transactions = appData.transactions.filter(t => t.id !== id);
+  showToast('Transaction deleted');
+  renderTransactions();
+  renderDashboard();
+}
+
+function deleteLoan(id) {
+  appData.loans = appData.loans.filter(l => l.id !== id);
+  showToast('Loan removed');
+  renderLoansPage();
+}
+
+function deleteGoal(id) {
+  appData.goals = appData.goals.filter(g => g.id !== id);
+  showToast('Goal removed');
+  renderSavingsPage();
+}
+
+function markReimbursed(id) {
+  const t = appData.transactions.find(t => t.id === id);
+  if (t) { t.reimbDone = true; showToast('Marked as reimbursed'); renderDashboard(); }
+}
+
+function makePayment(loanId) {
+  const loan = appData.loans.find(l => l.id === loanId);
+  if (!loan) return;
+  const amt = prompt(`Log payment for ${loan.name}. Amount (default: ${loan.payment} AWG):`);
+  if (amt !== null) {
+    const payment = parseFloat(amt) || loan.payment;
+    loan.balance = Math.max(0, loan.balance - payment);
+    if (loan.balance === 0) loan.status = 'paid';
+    showToast(`Payment of ${fmt(payment)} logged`);
+    renderLoansPage();
+  }
+}
+
+function addToGoal(goalId) {
+  const goal = appData.goals.find(g => g.id === goalId);
+  if (!goal) return;
+  const amt = prompt(`Add to "${goal.name}" goal. Amount (AWG):`);
+  if (amt !== null) {
+    goal.current = Math.min(goal.target, goal.current + (parseFloat(amt)||0));
+    showToast(`Added to goal`);
+    renderSavingsPage();
+  }
+}
+
+// =============================================
+// REPORTS
+// =============================================
+function generateTaxReport() {
+  const year = parseInt(document.getElementById('reportYear').value);
+  const allTx = appData.transactions.filter(t => new Date(t.date).getFullYear() === year && t.type === 'income');
+  const diegoIncome = allTx.filter(t=>t.person==='diego').reduce((a,t)=>a+t.amountAWG,0);
+  const stephanyIncome = allTx.filter(t=>t.person==='stephany').reduce((a,t)=>a+t.amountAWG,0);
+  const el = document.getElementById('taxReportOutput');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="section-title" style="margin-bottom:14px;">Tax reference report — ${year}</div>
+    <div class="grid-2">
+      <div>
+        <div class="salary-ref" style="margin-bottom:12px;">
+          <div style="font-weight:600;margin-bottom:8px;">Diego Alejandro Maduro</div>
+          <div class="salary-ref-row"><span>Gross salary/yr</span><span>AWG ${fmt(3500*12)}</span></div>
+          <div class="salary-ref-row"><span>Pension deductions</span><span>-AWG ${fmt(350*12)}</span></div>
+          <div class="salary-ref-row"><span>AOV/AWW deductions</span><span>-AWG ${fmt(523.72*12)}</span></div>
+          <div class="salary-ref-row"><span>AZV deductions</span><span>-AWG ${fmt(354.78*12)}</span></div>
+          <div class="salary-ref-row"><span>Acquisition costs</span><span>-AWG ${fmt(109.91*12)}</span></div>
+          <div class="salary-ref-row total"><span>Net income logged</span><span style="color:var(--green);">${fmt(diegoIncome)}</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="salary-ref">
+          <div style="font-weight:600;margin-bottom:8px;">Stephany Wever</div>
+          <div class="salary-ref-row"><span>Net income logged</span><span style="color:var(--green);">${fmt(stephanyIncome)}</span></div>
+          <div class="salary-ref-row total"><span>Add salary slip details in Settings</span><span></span></div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:12px;">This report is for reference only. Consult a tax advisor for official filings. All amounts in AWG.</p>
+  `;
+}
+
+function exportCSV() {
+  const txs = getMonthTx(appData.currentMonth, appData.currentYear);
+  const rows = [['Date','Description','Category','Type','Person','Amount AWG','Currency','Business Paid','Reimb Pending','Notes']];
+  txs.forEach(t => rows.push([t.date,t.desc,t.cat,t.type,t.person,t.amountAWG,t.currency,t.bizPaid?'Yes':'No',t.reimb&&!t.reimbDone?'Yes':'No',t.notes]));
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `maduro-finance-${appData.currentYear}-${String(appData.currentMonth+1).padStart(2,'0')}.csv`;
+  a.click();
+  showToast('CSV exported');
+}
+
+// =============================================
+// GOOGLE SHEETS SYNC
+// =============================================
+function syncToSheets() {
+  if (appData.isDemo) return;
+  showToast('Syncing to Google Sheets...');
+}
+
+// =============================================
+// MODALS
+// =============================================
+function openModal(name) {
+  if (name === 'addTransaction') {
+    document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('tx-cat').innerHTML = CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+  if (name === 'addIncome') document.getElementById('inc-date').value = new Date().toISOString().split('T')[0];
+  if (name === 'savingsWithdraw') document.getElementById('withdraw-date').value = new Date().toISOString().split('T')[0];
+  if (name === 'editAssets') {
+    document.getElementById('asset-savings').value = calcSavingsBalance().toFixed(2);
+    document.getElementById('asset-diego-biz').value = appData.assets.diegoBiz||'';
+    document.getElementById('asset-stephany-biz1').value = appData.assets.stephanyBiz1||'';
+    document.getElementById('asset-stephany-biz2').value = appData.assets.stephanyBiz2||'';
+    document.getElementById('asset-other').value = appData.assets.other||'';
+  }
+  document.getElementById('modal-'+name).classList.add('open');
+}
+
+function closeModal(name) {
+  document.getElementById('modal-'+name).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
+});
+
+document.getElementById('tx-bizpaid').addEventListener('change', function() {
+  document.getElementById('bizNameRow').style.display = this.checked ? 'flex' : 'none';
+  if (this.checked) document.getElementById('tx-bizname').value = 'Pet Crematorium Aruba';
+});
+
+document.getElementById('tx-reimb').addEventListener('change', function() {
+  document.getElementById('reimbFromRow').style.display = this.checked ? 'flex' : 'none';
+  if (this.checked) document.getElementById('tx-reimbfrom').value = 'Pet Crematorium Aruba';
+});
+
+document.getElementById('tx-currency').addEventListener('change', function() {
+  document.getElementById('currencyConvertRow').style.display = this.value !== 'AWG' ? 'block' : 'none';
+});
+
+document.getElementById('tx-amount').addEventListener('input', function() {
+  const currency = document.getElementById('tx-currency').value;
+  if (currency !== 'AWG') {
+    const rates = { USD:1.798, EUR:1.96 };
+    document.getElementById('tx-amount-awg').value = (parseFloat(this.value||0)*rates[currency]).toFixed(2);
+  }
+});
+
+function handleReceiptFile(input) {
+  if (input.files && input.files[0]) {
+    document.getElementById('receiptFileName').textContent = input.files[0].name + ' — will upload to Google Drive on sync';
+  }
+}
+
+// =============================================
+// UTILS
+// =============================================
+function fmt(n) {
+  return 'AWG ' + (Math.round((n||0)*100)/100).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function cap(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+}
+
+function months() {
+  return ['January','February','March','April','May','June','July','August','September','October','November','December'];
+}
+
+function calcFixedExpenses() {
+  const recurring = appData.transactions.filter(t => t.recurring && t.type === 'expense' && !t.bizPaid);
+  const unique = {};
+  recurring.forEach(t => { unique[t.cat] = Math.max(unique[t.cat]||0, t.amountAWG); });
+  return Object.values(unique).reduce((a,v) => a+v, 0);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+updateMonthLabel();
+</script>
+</body>
+</html>
