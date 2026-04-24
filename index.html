@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Maduro Family Finance</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async></script>
 <style>
 :root {
   --bg: #F7F6F2;
@@ -271,9 +272,12 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
 <div id="app">
   <!-- Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-logo">
-      <h1>Maduro Finance</h1>
-      <p>Family tracker</p>
+    <div class="sidebar-logo" style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <h1>Maduro Finance</h1>
+        <p>Family tracker</p>
+      </div>
+      <button onclick="signOut()" title="Sign out" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px;" id="signOutBtn">&#8594;</button>
     </div>
     <div class="sidebar-month">
       <button class="month-nav" onclick="changeMonth(-1)">&#8592;</button>
@@ -925,8 +929,44 @@ let appData = {
 // AUTH
 // =============================================
 function connectGoogle() {
-  showToast('Google OAuth setup required — see Settings for setup guide. Loading demo mode for now.');
-  loadDemo();
+  const clientId = localStorage.getItem('mf_clientId');
+  if (!clientId) {
+    showToast('Enter your Google Client ID in Settings first, then sign in.');
+    loadDemo();
+    return;
+  }
+  appData.settings.clientId = clientId;
+  appData.settings.sheetId = localStorage.getItem('mf_sheetId') || '';
+  initGoogleAuth();
+}
+
+function initGoogleAuth() {
+  if (!appData.settings.clientId) { showToast('No Client ID. Enter it in Settings.'); return; }
+  google.accounts.oauth2.initTokenClient({
+    client_id: appData.settings.clientId,
+    scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file',
+    callback: async (response) => {
+      if (response.error) { showToast('Sign in failed: ' + response.error); return; }
+      appData.googleToken = response.access_token;
+      appData.isDemo = false;
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      if (appData.settings.sheetId) {
+        await loadFromSheets();
+      } else {
+        renderAll();
+        showToast('Connected! Enter your Sheet ID in Settings to load your data.');
+      }
+    }
+  }).requestAccessToken();
+}
+
+function signOut() {
+  appData.googleToken = null;
+  appData.isDemo = false;
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  showToast('Signed out');
 }
 
 function loadDemo() {
@@ -934,6 +974,7 @@ function loadDemo() {
   loadDemoData();
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('signOutBtn').title = 'Exit demo';
   renderAll();
   showToast('Demo mode loaded. Connect Google in Settings when ready.');
 }
@@ -1505,9 +1546,14 @@ function renderSettings() {
 }
 
 function saveSheetSettings() {
-  appData.settings.sheetId = document.getElementById('sheetIdInput').value;
-  appData.settings.clientId = document.getElementById('clientIdInput').value;
-  showToast('Settings saved. Reload and sign in with Google to connect.');
+  appData.settings.sheetId = document.getElementById('sheetIdInput').value.trim();
+  appData.settings.clientId = document.getElementById('clientIdInput').value.trim();
+  localStorage.setItem('mf_sheetId', appData.settings.sheetId);
+  localStorage.setItem('mf_clientId', appData.settings.clientId);
+  showToast('Settings saved ✓ Click "Sync to Sheets" to push your data.');
+  if (appData.googleToken && appData.settings.sheetId) {
+    loadFromSheets();
+  }
 }
 
 function setSavingsOpening() {
@@ -1749,11 +1795,174 @@ function exportCSV() {
 }
 
 // =============================================
-// GOOGLE SHEETS SYNC
+// GOOGLE SHEETS SYNC — FULL IMPLEMENTATION
 // =============================================
-function syncToSheets() {
-  if (appData.isDemo) return;
+
+const SHEET_TABS = {
+  TRANSACTIONS: 'Transactions',
+  LOANS: 'Loans',
+  GOALS: 'Goals',
+  SAVINGS: 'SavingsLedger',
+  SETTINGS: 'Settings'
+};
+
+const TX_HEADERS = ['ID','Date','Description','Category','Type','Person','Amount','Currency','AmountAWG','BizPaid','BizName','Reimb','ReimbFrom','ReimbDone','Recurring','Notes','Receipt'];
+const LOAN_HEADERS = ['ID','Name','Person','Lender','Balance','Payment','Rate','Status','Notes'];
+const GOAL_HEADERS = ['ID','Name','Target','Current','Date','Color'];
+const SAVINGS_HEADERS = ['ID','Date','Type','Amount','Note','Balance'];
+const SETTINGS_HEADERS = ['Key','Value'];
+
+async function sheetsAPI(method, path, body) {
+  if (!appData.googleToken) { showToast('Not connected to Google. Please sign in.'); return null; }
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${appData.settings.sheetId}${path}`;
+  const opts = {
+    method,
+    headers: { 'Authorization': `Bearer ${appData.googleToken}`, 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const res = await fetch(url, opts);
+    if (res.status === 401) { showToast('Google session expired. Please sign in again.'); signOut(); return null; }
+    return res.ok ? await res.json() : null;
+  } catch(e) { showToast('Network error syncing to Google Sheets'); return null; }
+}
+
+async function ensureSheetTabs() {
+  const info = await sheetsAPI('GET', '');
+  if (!info) return false;
+  const existing = info.sheets.map(s => s.properties.title);
+  const needed = Object.values(SHEET_TABS).filter(t => !existing.includes(t));
+  if (!needed.length) return true;
+  await sheetsAPI('POST', ':batchUpdate', {
+    requests: needed.map(title => ({ addSheet: { properties: { title } } }))
+  });
+  const headerData = needed.map(title => {
+    const hmap = {
+      'Transactions': TX_HEADERS, 'Loans': LOAN_HEADERS,
+      'Goals': GOAL_HEADERS, 'SavingsLedger': SAVINGS_HEADERS, 'Settings': SETTINGS_HEADERS
+    };
+    return { range: `${title}!A1`, values: [hmap[title]||[]] };
+  });
+  if (headerData.length) {
+    await sheetsAPI('POST', '/values:batchUpdate', { valueInputOption: 'RAW', data: headerData });
+  }
+  return true;
+}
+
+async function syncToSheets() {
+  if (appData.isDemo) { showToast('Connect Google Sheets in Settings to enable sync'); return; }
+  if (!appData.settings.sheetId) { showToast('No Sheet ID set. Go to Settings.'); return; }
   showToast('Syncing to Google Sheets...');
+  await ensureSheetTabs();
+
+  const txRows = appData.transactions.map(t => [
+    t.id, t.date, t.desc, t.cat, t.type, t.person,
+    t.amount, t.currency, t.amountAWG,
+    t.bizPaid?'TRUE':'FALSE', t.bizName||'',
+    t.reimb?'TRUE':'FALSE', t.reimbFrom||'',
+    t.reimbDone?'TRUE':'FALSE', t.recurring?'TRUE':'FALSE',
+    t.notes||'', t.receipt||''
+  ]);
+
+  const loanRows = appData.loans.map(l => [
+    l.id, l.name, l.person, l.lender, l.balance, l.payment, l.rate, l.status, l.notes||''
+  ]);
+
+  const goalRows = appData.goals.map(g => [
+    g.id, g.name, g.target, g.current, g.date, g.color
+  ]);
+
+  const savRows = appData.savingsLedger.map(s => [
+    s.id, s.date, s.type, s.amount, s.note||'', s.balance
+  ]);
+
+  const settingsRows = [
+    ['savingsOpening', appData.savingsOpening],
+    ['diegoBiz', appData.assets.diegoBiz],
+    ['stephanyBiz1', appData.assets.stephanyBiz1],
+    ['stephanyBiz2', appData.assets.stephanyBiz2],
+    ['other', appData.assets.other],
+    ['budgetLimits', JSON.stringify(appData.budgetLimits)]
+  ];
+
+  const clearRanges = Object.values(SHEET_TABS).map(t => `${t}!A2:Z10000`);
+  await sheetsAPI('POST', '/values:batchClear', { ranges: clearRanges });
+
+  const writeData = [];
+  if (txRows.length) writeData.push({ range: `${SHEET_TABS.TRANSACTIONS}!A2`, values: txRows });
+  if (loanRows.length) writeData.push({ range: `${SHEET_TABS.LOANS}!A2`, values: loanRows });
+  if (goalRows.length) writeData.push({ range: `${SHEET_TABS.GOALS}!A2`, values: goalRows });
+  if (savRows.length) writeData.push({ range: `${SHEET_TABS.SAVINGS}!A2`, values: savRows });
+  writeData.push({ range: `${SHEET_TABS.SETTINGS}!A2`, values: settingsRows });
+
+  const result = await sheetsAPI('POST', '/values:batchUpdate', { valueInputOption: 'RAW', data: writeData });
+  if (result) showToast('Synced to Google Sheets ✓');
+  else showToast('Sync failed — check Sheet ID in Settings');
+}
+
+async function loadFromSheets() {
+  if (!appData.googleToken || !appData.settings.sheetId) return;
+  showToast('Loading data from Google Sheets...');
+  await ensureSheetTabs();
+
+  const tabs = Object.values(SHEET_TABS);
+  const rangeParam = tabs.map(t => encodeURIComponent(`${t}!A1:Z10000`)).join('&ranges=');
+  const result = await sheetsAPI('GET', `/values:batchGet?ranges=${rangeParam}`);
+  if (!result || !result.valueRanges) { showToast('Could not load sheet data'); return; }
+
+  const getSheet = (name) => {
+    const vr = result.valueRanges.find(r => r.range && r.range.includes(name));
+    return vr && vr.values && vr.values.length > 1 ? vr.values.slice(1) : [];
+  };
+
+  const txRows = getSheet('Transactions');
+  if (txRows.length) {
+    appData.transactions = txRows.filter(r=>r[0]).map(r => ({
+      id:parseInt(r[0])||Date.now(), date:r[1]||'', desc:r[2]||'', cat:r[3]||'', type:r[4]||'expense',
+      person:r[5]||'joint', amount:parseFloat(r[6])||0, currency:r[7]||'AWG', amountAWG:parseFloat(r[8])||0,
+      bizPaid:r[9]==='TRUE', bizName:r[10]||'', reimb:r[11]==='TRUE', reimbFrom:r[12]||'',
+      reimbDone:r[13]==='TRUE', recurring:r[14]==='TRUE', notes:r[15]||'', receipt:r[16]||''
+    }));
+  }
+
+  const loanRows = getSheet('Loans');
+  if (loanRows.length) {
+    appData.loans = loanRows.filter(r=>r[0]).map(r => ({
+      id:parseInt(r[0])||Date.now(), name:r[1]||'', person:r[2]||'', lender:r[3]||'',
+      balance:parseFloat(r[4])||0, payment:parseFloat(r[5])||0, rate:parseFloat(r[6])||0,
+      status:r[7]||'active', notes:r[8]||''
+    }));
+  }
+
+  const goalRows = getSheet('Goals');
+  if (goalRows.length) {
+    appData.goals = goalRows.filter(r=>r[0]).map(r => ({
+      id:parseInt(r[0])||Date.now(), name:r[1]||'', target:parseFloat(r[2])||0,
+      current:parseFloat(r[3])||0, date:r[4]||'', color:r[5]||'#185FA5'
+    }));
+  }
+
+  const savRows = getSheet('SavingsLedger');
+  if (savRows.length) {
+    appData.savingsLedger = savRows.filter(r=>r[0]).map(r => ({
+      id:parseInt(r[0])||Date.now(), date:r[1]||'', type:r[2]||'deposit',
+      amount:parseFloat(r[3])||0, note:r[4]||'', balance:parseFloat(r[5])||0
+    }));
+  }
+
+  const settingsRows = getSheet('Settings');
+  settingsRows.forEach(r => {
+    if (!r[0]) return;
+    if (r[0]==='savingsOpening') appData.savingsOpening = parseFloat(r[1])||0;
+    if (r[0]==='diegoBiz') appData.assets.diegoBiz = parseFloat(r[1])||0;
+    if (r[0]==='stephanyBiz1') appData.assets.stephanyBiz1 = parseFloat(r[1])||0;
+    if (r[0]==='stephanyBiz2') appData.assets.stephanyBiz2 = parseFloat(r[1])||0;
+    if (r[0]==='other') appData.assets.other = parseFloat(r[1])||0;
+    if (r[0]==='budgetLimits') { try { appData.budgetLimits = JSON.parse(r[1]); } catch(e){} }
+  });
+
+  showToast('Data loaded from Google Sheets ✓');
+  renderAll();
 }
 
 // =============================================
@@ -1841,7 +2050,11 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// Init
+// Init — load saved settings from localStorage
+const savedSheetId = localStorage.getItem('mf_sheetId');
+const savedClientId = localStorage.getItem('mf_clientId');
+if (savedSheetId) appData.settings.sheetId = savedSheetId;
+if (savedClientId) appData.settings.clientId = savedClientId;
 updateMonthLabel();
 </script>
 </body>
